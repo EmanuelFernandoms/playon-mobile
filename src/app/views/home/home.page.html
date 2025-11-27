@@ -15,7 +15,7 @@
   <div class="section-container" *ngIf="ginasios.length > 0">
     <h2 class="section-title">Ginásios Disponíveis</h2>
     <div class="horizontal-scroll">
-      <div class="gym-card" *ngFor="let ginasio of ginasios" [attr.data-ginasio-id]="ginasio.id" onclick="if(window.handleAbrirGinasio) { event.preventDefault(); event.stopPropagation(); const id = this.getAttribute('data-ginasio-id'); window.handleAbrirGinasio(id); }">
+      <div class="gym-card" *ngFor="let ginasio of ginasios" (click)="abrirGinasio(ginasio)">
         <div class="gym-image-container">
           <img 
             [src]="ginasio.imagem || 'assets/icon/favicon.png'" 
@@ -45,7 +45,7 @@
   <div class="section-container" *ngIf="esportes.length > 0">
     <h2 class="section-title">Reservas</h2>
     <div class="reservas-grid">
-      <div class="reserva-card" *ngFor="let reserva of esportes" [attr.data-reserva-id]="reserva.id" onclick="if(window.handleAbrirReserva) { event.preventDefault(); event.stopPropagation(); const id = this.getAttribute('data-reserva-id'); window.handleAbrirReserva(id); }">
+      <div class="reserva-card" *ngFor="let reserva of esportes" (click)="abrirReserva(reserva)">
         <div class="reserva-header">
           <div class="reserva-esporte">
             <ion-icon name="football-outline"></ion-icon>

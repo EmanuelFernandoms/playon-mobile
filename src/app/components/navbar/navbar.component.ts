@@ -1,5 +1,5 @@
 import { IonicModule } from '@ionic/angular';
-import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ThemeService } from 'src/app/services/theme.service';
 import { CommonModule } from '@angular/common';
@@ -14,7 +14,7 @@ import { CommonModule } from '@angular/common';
     CommonModule
   ],
 })
-export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy {
+export class NavbarComponent implements OnInit {
 
   logoPath = 'assets/icon/playon vermelho.svg';
 
@@ -43,16 +43,5 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigateByUrl('/home');
   }
 
-  ngAfterViewInit() {
-    // Expor função no window para eventos nativos
-    (window as any).handleIrParaHome = () => {
-      console.log('🏠 handleIrParaHome chamado via onclick nativo!');
-      this.irParaHome();
-    };
-  }
-
-  ngOnDestroy() {
-    delete (window as any).handleIrParaHome;
-  }
 
 }

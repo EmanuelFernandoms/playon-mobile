@@ -34,7 +34,7 @@
 
     <!-- Cards de Reservas -->
     <div class="reservas-container" *ngIf="reservas.length > 0">
-      <div class="reserva-card" *ngFor="let reserva of reservas" [attr.data-reserva-id]="reserva.id" onclick="if(window.handleAbrirReservaReservas) { event.preventDefault(); event.stopPropagation(); const id = this.getAttribute('data-reserva-id'); window.handleAbrirReservaReservas(id); }">
+      <div class="reserva-card" *ngFor="let reserva of reservas" (click)="abrirReserva(reserva)">
         <div class="reserva-header">
           <div class="reserva-id">
             <ion-icon name="ticket-outline"></ion-icon>

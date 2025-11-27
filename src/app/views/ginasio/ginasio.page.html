@@ -3,13 +3,13 @@
 <ion-content [fullscreen]="true" class="ion-padding">
   
   <!-- Botão Voltar -->
-  <button 
-    type="button"
-    onclick="if(window.handleVoltarGinasio) { event.preventDefault(); event.stopPropagation(); window.handleVoltarGinasio(); }"
-    class="back-button native-button">
+  <ion-button 
+    fill="clear" 
+    (click)="voltar()"
+    class="back-button">
     <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
     Voltar
-  </button>
+  </ion-button>
 
   <!-- Informações do Ginásio -->
   <div class="ginasio-header" *ngIf="ginasio">
@@ -58,7 +58,7 @@
     </div>
 
     <div class="quadras-grid" *ngIf="quadras.length > 0">
-      <div class="quadra-card" *ngFor="let quadra of quadras" [attr.data-quadra-id]="quadra.id" onclick="if(window.handleAbrirQuadra) { event.preventDefault(); event.stopPropagation(); const id = this.getAttribute('data-quadra-id'); window.handleAbrirQuadra(id); }">
+      <div class="quadra-card" *ngFor="let quadra of quadras" (click)="abrirQuadra(quadra)">
         <div class="quadra-header">
           <h3 class="quadra-nome">{{ quadra.nome || 'Quadra ' + quadra.numero }}</h3>
         </div>

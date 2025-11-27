@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
@@ -20,7 +20,7 @@ import { environment } from 'src/environments/environment';
   templateUrl: './ginasio.page.html',
   styleUrls: ['./ginasio.page.scss'],
 })
-export class GinasioPage implements OnInit, AfterViewInit, OnDestroy {
+export class GinasioPage implements OnInit {
 
   ginasio: any = null;
   quadras: any[] = [];
@@ -114,26 +114,6 @@ export class GinasioPage implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate(['/home']);
   }
 
-  ngAfterViewInit() {
-    // Expor funções no window para eventos nativos
-    (window as any).handleVoltarGinasio = () => {
-      console.log('⬅️ handleVoltarGinasio chamado via onclick nativo!');
-      this.voltar();
-    };
-    
-    (window as any).handleAbrirQuadra = (id: string) => {
-      console.log('🏀 handleAbrirQuadra chamado via onclick nativo! ID:', id);
-      const quadra = this.quadras.find(q => q.id === id);
-      if (quadra) {
-        this.abrirQuadra(quadra);
-      }
-    };
-  }
-
-  ngOnDestroy() {
-    delete (window as any).handleVoltarGinasio;
-    delete (window as any).handleAbrirQuadra;
-  }
 
 }
 
