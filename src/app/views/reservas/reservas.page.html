@@ -1,0 +1,101 @@
+<app-navbar></app-navbar>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content
+      pullingIcon="arrow-down"
+      pullingText="Puxe para atualizar"
+      refreshingSpinner="circles"
+      refreshingText="Atualizando...">
+    </ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Header -->
+  <div class="page-header">
+    <h1 class="page-title">Minhas Reservas</h1>
+    <p class="page-subtitle">Gerencie todas as suas reservas</p>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="carregando" class="loading-container">
+    <ion-spinner></ion-spinner>
+    <p>Carregando reservas...</p>
+  </div>
+
+  <!-- Lista de Reservas -->
+  <div *ngIf="!carregando">
+    <!-- Empty State -->
+    <div *ngIf="reservas.length === 0" class="empty-state">
+      <ion-icon name="calendar-outline"></ion-icon>
+      <h2>Nenhuma reserva encontrada</h2>
+      <p>Você ainda não possui reservas cadastradas.</p>
+    </div>
+
+    <!-- Cards de Reservas -->
+    <div class="reservas-container" *ngIf="reservas.length > 0">
+      <div class="reserva-card" *ngFor="let reserva of reservas" (click)="abrirReserva(reserva)">
+        <div class="reserva-header">
+          <div class="reserva-id">
+            <ion-icon name="ticket-outline"></ion-icon>
+            <span>#{{ reserva.codigo || reserva.id }}</span>
+          </div>
+          <div class="reserva-status" 
+               [class.status-confirmada]="reserva.status === 'confirmada'" 
+               [class.status-pendente]="reserva.status === 'pendente'"
+               [class.status-cancelada]="reserva.status === 'cancelada'">
+            {{ reserva.status }}
+          </div>
+        </div>
+        
+        <div class="reserva-body">
+          <div class="reserva-info-row">
+            <div class="reserva-info-item">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <div>
+                <span class="info-label">Data</span>
+                <span class="info-value">{{ formatarData(reserva.data) }}</span>
+              </div>
+            </div>
+            <div class="reserva-info-item">
+              <ion-icon name="time-outline"></ion-icon>
+              <div>
+                <span class="info-label">Horário</span>
+                <span class="info-value">{{ formatarHorario(reserva.hora_inicio) }} - {{ formatarHorario(reserva.hora_fim) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="reserva-info-row" *ngIf="reserva.observacoes">
+            <div class="reserva-info-item full-width">
+              <ion-icon name="document-text-outline"></ion-icon>
+              <div>
+                <span class="info-label">Observações</span>
+                <span class="info-value">{{ reserva.observacoes }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="reserva-footer">
+          <div class="reserva-valor">
+            <span class="valor-label">Valor</span>
+            <span class="valor-amount">R$ {{ reserva.valor }}</span>
+          </div>
+          <div class="reserva-pagamento" 
+               [class.pago]="reserva.pagamentos_status === 'pago'"
+               [class.pendente]="reserva.pagamentos_status === 'pendente'">
+            <ion-icon [name]="reserva.pagamentos_status === 'pago' ? 'checkmark-circle' : 'time-outline'"></ion-icon>
+            <span>{{ reserva.pagamentos_status }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</ion-content>
+
+<app-footer></app-footer>
+
+
+

@@ -1,0 +1,137 @@
+<app-navbar></app-navbar>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  
+  <!-- Botão Voltar -->
+  <ion-button 
+    fill="clear" 
+    (click)="voltar()"
+    class="back-button">
+    <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+    Voltar
+  </ion-button>
+
+  <!-- Informações da Quadra -->
+  <div class="quadra-header" *ngIf="quadra && ginasio">
+    <h1 class="quadra-title">{{ quadra.nome || 'Quadra ' + quadra.numero }}</h1>
+    <p class="quadra-local" *ngIf="ginasio">
+      <ion-icon name="location-outline"></ion-icon>
+      {{ ginasio.nome }}
+    </p>
+  </div>
+
+  <!-- Calendário -->
+  <div class="calendario-section">
+    <div class="calendario-header">
+      <ion-button fill="clear" (click)="mesAnterior()">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </ion-button>
+      <h2 class="mes-ano">
+        {{ currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) }}
+      </h2>
+      <ion-button fill="clear" (click)="mesProximo()">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </ion-button>
+    </div>
+
+    <div class="calendario-grid">
+      <div 
+        class="dia-calendario" 
+        *ngFor="let dia of getDiasDoMes()"
+        [class.hoje]="isHoje(dia)"
+        [class.selecionado]="isSelecionado(dia)"
+        [class.desabilitado]="isDataDesabilitada(dia)"
+        (click)="!isDataDesabilitada(dia) && selecionarData(dia)">
+        <span class="dia-numero">{{ dia.getDate() }}</span>
+        <span class="dia-semana">{{ dia.toLocaleDateString('pt-BR', { weekday: 'short' }) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Horários do Dia Selecionado -->
+  <div class="horarios-section" *ngIf="selectedDate">
+    <h3 class="section-title">
+      Horários para {{ formatarDataParaExibicao(selectedDate) }}
+    </h3>
+
+    <div *ngIf="carregando" class="loading-horarios">
+      <ion-spinner></ion-spinner>
+      <p>Carregando horários...</p>
+    </div>
+
+      <!-- Horários Livres -->
+      <div *ngIf="!carregando" class="horarios-container">
+        <h4 class="horarios-subtitle">Horários Disponíveis</h4>
+        
+        <div *ngIf="horariosLivres.length === 0" class="empty-horarios">
+          <ion-icon name="time-outline"></ion-icon>
+          <p>Nenhum horário disponível para esta data.</p>
+        </div>
+        
+        <div class="horarios-grid" *ngIf="horariosLivres.length > 0">
+          <div 
+            class="horario-item"
+            *ngFor="let horario of horariosLivres"
+            [class.selecionado]="horariosSelecionados.includes(horario)"
+            (click)="toggleHorario(horario)">
+            {{ horario }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulário de Reserva -->
+      <div class="formulario-reserva" *ngIf="mostrarFormulario && horariosSelecionados.length > 0">
+      <h4 class="form-title">Criar Reserva</h4>
+      <p class="horarios-selecionados">
+        Horários selecionados: {{ horariosSelecionados.join(', ') }}
+      </p>
+
+      <form [formGroup]="reservaForm" (ngSubmit)="criarReserva()">
+        <ion-item>
+          <ion-label position="stacked">Esporte *</ion-label>
+          <ion-select formControlName="id_esporte" placeholder="Selecione o esporte">
+            <ion-select-option *ngFor="let esporte of esportes" [value]="esporte.id">
+              {{ esporte.nome }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+        <div class="error-message" *ngIf="reservaForm.get('id_esporte')?.invalid && reservaForm.get('id_esporte')?.touched">
+          Esporte é obrigatório
+        </div>
+
+        <ion-item>
+          <ion-label position="stacked">Observações</ion-label>
+          <ion-textarea 
+            formControlName="observacoes"
+            placeholder="Adicione observações sobre a reserva"
+            rows="3">
+          </ion-textarea>
+        </ion-item>
+
+        <ion-item>
+          <ion-label>Reserva Privada</ion-label>
+          <ion-toggle formControlName="privada"></ion-toggle>
+        </ion-item>
+
+        <ion-button 
+          expand="block" 
+          type="submit"
+          [disabled]="reservaForm.invalid"
+          class="criar-reserva-button">
+          <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+          Criar Reserva
+        </ion-button>
+      </form>
+      </div>
+    </div>
+
+  <!-- Mensagem quando nenhuma data está selecionada -->
+  <div class="empty-state" *ngIf="!selectedDate">
+    <ion-icon name="calendar-outline"></ion-icon>
+    <p>Selecione uma data no calendário para ver os horários disponíveis</p>
+  </div>
+
+</ion-content>
+
+<app-footer></app-footer>
+

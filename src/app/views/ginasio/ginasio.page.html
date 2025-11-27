@@ -1,0 +1,81 @@
+<app-navbar></app-navbar>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  
+  <!-- Botão Voltar -->
+  <ion-button 
+    fill="clear" 
+    (click)="voltar()"
+    class="back-button">
+    <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+    Voltar
+  </ion-button>
+
+  <!-- Informações do Ginásio -->
+  <div class="ginasio-header" *ngIf="ginasio">
+    <div class="ginasio-image-container" *ngIf="ginasio.imagem">
+      <img 
+        [src]="ginasio.imagem" 
+        [alt]="ginasio.nome"
+        class="ginasio-image"
+        onerror="this.src='assets/icon/favicon.png'">
+    </div>
+    
+    <div class="ginasio-info">
+      <h1 class="ginasio-title">{{ ginasio.nome }}</h1>
+      
+      <div class="info-item">
+        <ion-icon name="location-outline"></ion-icon>
+        <div>
+          <p class="info-label">Endereço</p>
+          <p class="info-value">
+            {{ ginasio.rua }}, {{ ginasio.numero }}<br>
+            {{ ginasio.bairro }}<br>
+            {{ ginasio.cidade }}, {{ ginasio.uf }}
+          </p>
+        </div>
+      </div>
+
+      <div class="info-item" *ngIf="ginasio.hora_abertura && ginasio.hora_fechamento">
+        <ion-icon name="time-outline"></ion-icon>
+        <div>
+          <p class="info-label">Horário de Funcionamento</p>
+          <p class="info-value">
+            {{ formatarHorario(ginasio.hora_abertura) }} - {{ formatarHorario(ginasio.hora_fechamento) }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de Quadras -->
+  <div class="quadras-section">
+    <h2 class="section-title">Quadras Disponíveis</h2>
+    
+    <div *ngIf="quadras.length === 0" class="empty-state">
+      <ion-icon name="basketball-outline"></ion-icon>
+      <p>Nenhuma quadra disponível no momento.</p>
+    </div>
+
+    <div class="quadras-grid" *ngIf="quadras.length > 0">
+      <div class="quadra-card" *ngFor="let quadra of quadras" (click)="abrirQuadra(quadra)">
+        <div class="quadra-header">
+          <h3 class="quadra-nome">{{ quadra.nome || 'Quadra ' + quadra.numero }}</h3>
+        </div>
+        <div class="quadra-body">
+          <p *ngIf="quadra.descricao" class="quadra-descricao">{{ quadra.descricao }}</p>
+          <p *ngIf="quadra.tipo" class="quadra-tipo">
+            <ion-icon name="football-outline"></ion-icon>
+            {{ quadra.tipo }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</ion-content>
+
+<app-footer></app-footer>
+
+
+

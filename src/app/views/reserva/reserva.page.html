@@ -1,0 +1,142 @@
+<app-navbar></app-navbar>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  
+  <!-- Botão Voltar -->
+  <ion-button 
+    fill="clear" 
+    (click)="voltar()"
+    class="back-button">
+    <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+    Voltar
+  </ion-button>
+
+  <!-- Loading -->
+  <div *ngIf="carregando" class="loading-container">
+    <ion-spinner></ion-spinner>
+    <p>Carregando reserva...</p>
+  </div>
+
+  <!-- Detalhes da Reserva -->
+  <div *ngIf="!carregando && reserva" class="reserva-detalhes">
+    
+    <!-- Header da Reserva -->
+    <div class="reserva-header-detalhes">
+      <div class="reserva-esporte-header">
+        <ion-icon name="football-outline"></ion-icon>
+        <h1>{{ reserva.nome_esporte }}</h1>
+      </div>
+      <div class="reserva-status-badge" [class.status-confirmada]="reserva.status === 'confirmada'" 
+           [class.status-pendente]="reserva.status !== 'confirmada'">
+        {{ reserva.status }}
+      </div>
+    </div>
+
+    <!-- Informações da Reserva -->
+    <div class="info-section">
+      <h2 class="section-title">Informações da Reserva</h2>
+      
+      <div class="info-grid">
+        <div class="info-item">
+          <ion-icon name="calendar-outline"></ion-icon>
+          <div>
+            <p class="info-label">Data</p>
+            <p class="info-value">{{ formatarData(reserva.data) }}</p>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <ion-icon name="time-outline"></ion-icon>
+          <div>
+            <p class="info-label">Horário</p>
+            <p class="info-value">{{ formatarHorario(reserva.hora_inicio) }} - {{ formatarHorario(reserva.hora_fim) }}</p>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <ion-icon name="cash-outline"></ion-icon>
+          <div>
+            <p class="info-label">Valor Total</p>
+            <p class="info-value">R$ {{ reserva.valor }}</p>
+            <p class="info-value-divided" *ngIf="jogadores.length > 0">
+              R$ {{ calcularValorPorJogador().toFixed(2) }} por jogador ({{ jogadores.length }} {{ jogadores.length === 1 ? 'jogador' : 'jogadores' }})
+            </p>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <ion-icon name="card-outline"></ion-icon>
+          <div>
+            <p class="info-label">Pagamento</p>
+            <p class="info-value" [class.pago]="reserva.pagamentos_status === 'pago'">
+              {{ reserva.pagamentos_status }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-item-full" *ngIf="reserva.observacoes">
+        <ion-icon name="document-text-outline"></ion-icon>
+        <div>
+          <p class="info-label">Observações</p>
+          <p class="info-value">{{ reserva.observacoes }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botões de Ação -->
+    <div class="action-buttons" *ngIf="!carregando && reserva && !reservaJaPassou()">
+      <ion-button 
+        *ngIf="!usuarioEstaNaReserva"
+        expand="block" 
+        (click)="entrarNaReserva()"
+        class="action-button entrar-button">
+        <ion-icon name="person-add-outline" slot="start"></ion-icon>
+        Entrar na Reserva
+      </ion-button>
+      
+      <ion-button 
+        *ngIf="usuarioEstaNaReserva"
+        expand="block" 
+        fill="outline"
+        color="danger"
+        (click)="sairDaReserva()"
+        class="action-button sair-button">
+        <ion-icon name="person-remove-outline" slot="start"></ion-icon>
+        Sair da Reserva
+      </ion-button>
+    </div>
+
+    <!-- Mensagem se reserva já passou -->
+    <div class="reserva-passada-message" *ngIf="!carregando && reserva && reservaJaPassou()">
+      <ion-icon name="lock-closed-outline"></ion-icon>
+      <p>Esta reserva já foi realizada. Não é possível entrar ou sair.</p>
+    </div>
+
+    <!-- Jogadores -->
+    <div class="info-section">
+      <h2 class="section-title">Jogadores</h2>
+      
+      <div *ngIf="jogadores.length === 0" class="empty-state">
+        <ion-icon name="people-outline"></ion-icon>
+        <p>Nenhum jogador cadastrado nesta reserva.</p>
+      </div>
+
+      <div class="jogadores-list" *ngIf="jogadores.length > 0">
+        <div class="jogador-item" *ngFor="let jogador of jogadores">
+          <ion-icon name="person-circle-outline"></ion-icon>
+          <div class="jogador-info">
+            <p class="jogador-nome">{{ jogador.nome_completo || 'Jogador' }}</p>
+            <p class="jogador-email" *ngIf="jogador.email">{{ jogador.email }}</p>
+            <p class="jogador-telefone" *ngIf="jogador.telefone">{{ jogador.telefone }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</ion-content>
+
+<app-footer></app-footer>
+

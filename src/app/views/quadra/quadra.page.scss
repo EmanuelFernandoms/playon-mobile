@@ -1,0 +1,331 @@
+.ion-padding {
+  --background: var(--background-color, #ffffff) !important;
+  background-color: var(--background-color, #ffffff) !important;
+  padding-bottom: 80px !important;
+}
+
+ion-content {
+  --background: var(--background-color, #ffffff) !important;
+  background-color: var(--background-color, #ffffff) !important;
+}
+
+.back-button {
+  --color: var(--primary-color, #5900F8) !important;
+  --background: rgba(89, 0, 248, 0.08) !important;
+  --background-hover: rgba(89, 0, 248, 0.12) !important;
+  --background-activated: rgba(89, 0, 248, 0.16) !important;
+  --border-radius: 12px;
+  --padding-start: 12px;
+  --padding-end: 16px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+  margin: 16px 0;
+  font-weight: 600;
+  font-size: 15px;
+  text-transform: none;
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 4px rgba(89, 0, 248, 0.1);
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(89, 0, 248, 0.15);
+  }
+  
+  ion-icon {
+    color: var(--primary-color, #5900F8) !important;
+    font-size: 20px;
+    margin-right: 4px;
+  }
+}
+
+.quadra-header {
+  margin-bottom: 24px;
+  
+  .quadra-title {
+    color: var(--text-color, #000000) !important;
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+  }
+  
+  .quadra-local {
+    color: var(--text-secondary, #666666) !important;
+    font-size: 16px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    
+    ion-icon {
+      font-size: 18px;
+      color: var(--primary-color, #5900F8) !important;
+    }
+  }
+}
+
+// Calendário
+.calendario-section {
+  margin-bottom: 32px;
+  
+  .calendario-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    
+    .mes-ano {
+      color: var(--text-color, #000000) !important;
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0;
+      text-transform: capitalize;
+    }
+    
+    ion-button {
+      --color: var(--primary-color, #5900F8) !important;
+    }
+  }
+  
+  .calendario-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    
+    .dia-calendario {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #f8f9fa;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 8px;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: rgba(89, 0, 248, 0.1);
+      user-select: none;
+      -webkit-user-select: none;
+      
+      .dia-numero {
+        color: var(--text-color, #000000) !important;
+        font-size: 16px;
+        font-weight: 600;
+      }
+      
+      .dia-semana {
+        color: var(--text-secondary, #666666) !important;
+        font-size: 10px;
+        text-transform: uppercase;
+        margin-top: 2px;
+      }
+      
+      &:hover {
+        background: #e9ecef;
+        transform: scale(1.05);
+      }
+      
+      &.hoje {
+        border: 2px solid var(--primary-color, #5900F8);
+        background: var(--card-background, #f8f9fa);
+        
+        .dia-numero,
+        .dia-semana {
+          color: var(--text-color, #000000) !important;
+        }
+      }
+      
+      &.hoje.selecionado {
+        background: var(--primary-color, #5900F8);
+        border: 2px solid var(--primary-color, #5900F8);
+        
+        .dia-numero,
+        .dia-semana {
+          color: #ffffff !important;
+        }
+      }
+      
+      &.selecionado {
+        background: var(--primary-color, #5900F8);
+        border: 2px solid var(--primary-color, #5900F8);
+        
+        .dia-numero,
+        .dia-semana {
+          color: #ffffff !important;
+        }
+      }
+      
+      &.desabilitado {
+        background: #f5f5f5 !important;
+        cursor: not-allowed;
+        opacity: 0.5;
+        
+        .dia-numero,
+        .dia-semana {
+          color: #cccccc !important;
+        }
+        
+        &:hover {
+          transform: none;
+          background: #f5f5f5 !important;
+        }
+      }
+    }
+  }
+}
+
+// Horários
+.horarios-section {
+  .section-title {
+    color: var(--text-color, #000000) !important;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 20px 0;
+  }
+  
+  .loading-horarios {
+    text-align: center;
+    padding: 40px 20px;
+    
+    ion-spinner {
+      margin-bottom: 16px;
+    }
+    
+    p {
+      color: var(--text-secondary, #666666) !important;
+      font-size: 14px;
+    }
+  }
+  
+  .horarios-subtitle {
+    color: var(--text-color, #000000) !important;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+  }
+  
+  .horarios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+    
+    .horario-item {
+      padding: 12px;
+      background: #f8f9fa;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: #000000 !important;
+      font-weight: 600;
+      font-size: 14px;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: rgba(89, 0, 248, 0.1);
+      user-select: none;
+      -webkit-user-select: none;
+      
+      &:hover {
+        border-color: var(--primary-color, #5900F8);
+        transform: translateY(-2px);
+      }
+      
+      &:active {
+        opacity: 0.8;
+      }
+      
+      &.selecionado {
+        background: var(--primary-color, #5900F8);
+        border-color: var(--primary-color, #5900F8);
+        color: #ffffff !important;
+      }
+    }
+  }
+  
+  .empty-horarios {
+    text-align: center;
+    padding: 40px 20px;
+    
+    ion-icon {
+      font-size: 48px;
+      color: #cccccc !important;
+      margin-bottom: 12px;
+    }
+    
+    p {
+      color: #888888 !important;
+      font-size: 14px;
+      margin: 0;
+    }
+  }
+}
+
+// Formulário
+.formulario-reserva {
+  margin-top: 24px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  
+  .form-title {
+    color: var(--text-color, #000000) !important;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+  }
+  
+  .horarios-selecionados {
+    color: var(--primary-color, #5900F8) !important;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 16px 0;
+  }
+  
+  ion-item {
+    --background: var(--card-background, #ffffff) !important;
+    background-color: var(--card-background, #ffffff) !important;
+    margin-bottom: 16px;
+    --border-radius: 8px;
+    --padding-start: 16px;
+    --padding-end: 16px;
+    
+    ion-label {
+      color: var(--text-color, #000000) !important;
+      font-weight: 500;
+    }
+  }
+  
+  .error-message {
+    color: #eb445a !important;
+    font-size: 12px;
+    margin: -12px 0 8px 16px;
+  }
+  
+  .criar-reserva-button {
+    --background: var(--primary-color, #5900F8) !important;
+    --color: #ffffff !important;
+    margin-top: 16px;
+    height: 48px;
+    font-weight: 600;
+    text-transform: none;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  
+  ion-icon {
+    font-size: 64px;
+    color: #cccccc !important;
+    margin-bottom: 16px;
+  }
+  
+  p {
+    color: #888888 !important;
+    font-size: 16px;
+  }
+}
+

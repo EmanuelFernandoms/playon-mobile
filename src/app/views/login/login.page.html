@@ -1,0 +1,207 @@
+<ion-content [fullscreen]="true" class="login-content" [scrollY]="true">
+  <div class="login-container">
+    
+    <!-- Logo/Header -->
+    <div class="login-header">
+      <img [src]="logoPath" alt="PlayOn" class="logo">
+    </div>
+
+    <!-- Modo Login -->
+    <div *ngIf="isLoginMode" class="form-container">
+      <h2>Entrar</h2>
+      
+      <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+        <div class="input-wrapper">
+          <label class="input-label">Email</label>
+          <input 
+            type="email" 
+            formControlName="email"
+            placeholder="seu@email.com"
+            inputmode="email"
+            autocomplete="email"
+            enterkeyhint="next"
+            class="native-input">
+        </div>
+        <div class="error-message" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+          Email inválido
+        </div>
+
+        <div class="input-wrapper">
+          <label class="input-label">Senha</label>
+          <input 
+            type="password" 
+            formControlName="senha"
+            placeholder="Digite sua senha"
+            inputmode="text"
+            autocomplete="current-password"
+            enterkeyhint="done"
+            class="native-input">
+        </div>
+        <div class="error-message" *ngIf="loginForm.get('senha')?.invalid && loginForm.get('senha')?.touched">
+          Senha deve ter no mínimo 6 caracteres
+        </div>
+
+        <button 
+          type="submit"
+          [disabled]="loginForm.invalid"
+          class="login-button native-button">
+          Entrar
+        </button>
+      </form>
+
+      <div class="toggle-mode">
+        <p>Não tem uma conta? <a (click)="toggleMode()">Cadastre-se</a></p>
+      </div>
+    </div>
+
+    <!-- Modo Cadastro - Passo 1: Email -->
+    <div *ngIf="!isLoginMode && step === 'email'" class="form-container">
+      <h2>Criar Conta</h2>
+      
+      <form [formGroup]="emailTokenForm" (ngSubmit)="onSendEmailToken()">
+        <div class="input-wrapper">
+          <label class="input-label">Email</label>
+          <input 
+            type="email" 
+            formControlName="email"
+            placeholder="seu@email.com"
+            inputmode="email"
+            autocomplete="email"
+            enterkeyhint="next"
+            class="native-input">
+        </div>
+        <div class="error-message" *ngIf="emailTokenForm.get('email')?.invalid && emailTokenForm.get('email')?.touched">
+          Email inválido
+        </div>
+
+        <button 
+          type="submit"
+          [disabled]="emailTokenForm.invalid"
+          class="login-button native-button">
+          Enviar Código de Verificação
+        </button>
+      </form>
+
+      <div class="toggle-mode">
+        <p>Já tem uma conta? <a (click)="toggleMode()">Entrar</a></p>
+      </div>
+    </div>
+
+    <!-- Modo Cadastro - Passo 2: Verificar Código -->
+    <div *ngIf="!isLoginMode && step === 'verify'" class="form-container">
+      <h2>Verificar Email</h2>
+      <p class="info-text">Digite o código enviado para <strong>{{ userEmail }}</strong></p>
+      
+      <div class="input-wrapper">
+        <label class="input-label">Código de Verificação</label>
+        <input 
+          type="text" 
+          #codigoInput
+          placeholder="Digite o código"
+          maxlength="6"
+          inputmode="numeric"
+          enterkeyhint="done"
+          class="native-input">
+      </div>
+
+      <button 
+        type="button"
+        (click)="onVerifyCode(codigoInput.value)"
+        class="login-button native-button">
+        Verificar Código
+      </button>
+
+      <button 
+        type="button"
+        (click)="step = 'email'"
+        class="back-button native-button">
+        Voltar
+      </button>
+    </div>
+
+    <!-- Modo Cadastro - Passo 3: Dados do Usuário -->
+    <div *ngIf="!isLoginMode && step === 'register'" class="form-container">
+      <h2>Complete seu Cadastro</h2>
+      
+      <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+        <div class="input-wrapper">
+          <label class="input-label">Nome</label>
+          <input 
+            type="text" 
+            formControlName="nome"
+            placeholder="Seu nome completo"
+            inputmode="text"
+            autocomplete="name"
+            enterkeyhint="next"
+            class="native-input">
+        </div>
+        <div class="error-message" *ngIf="registerForm.get('nome')?.invalid && registerForm.get('nome')?.touched">
+          Nome é obrigatório
+        </div>
+
+        <div class="input-wrapper">
+          <label class="input-label">Telefone</label>
+          <input 
+            type="tel" 
+            formControlName="telefone"
+            placeholder="(00) 00000-0000"
+            inputmode="tel"
+            autocomplete="tel"
+            enterkeyhint="next"
+            class="native-input">
+        </div>
+        <div class="error-message" *ngIf="registerForm.get('telefone')?.invalid && registerForm.get('telefone')?.touched">
+          Telefone é obrigatório
+        </div>
+
+        <div class="input-wrapper">
+          <label class="input-label">Senha</label>
+          <input 
+            type="password" 
+            formControlName="senha"
+            placeholder="Mínimo 6 caracteres"
+            inputmode="text"
+            autocomplete="new-password"
+            enterkeyhint="next"
+            class="native-input">
+        </div>
+        <div class="error-message" *ngIf="registerForm.get('senha')?.invalid && registerForm.get('senha')?.touched">
+          Senha deve ter no mínimo 6 caracteres
+        </div>
+
+        <div class="input-wrapper">
+          <label class="input-label">Confirmar Senha</label>
+          <input 
+            type="password" 
+            formControlName="confirmarSenha"
+            placeholder="Digite a senha novamente"
+            inputmode="text"
+            autocomplete="new-password"
+            enterkeyhint="done"
+            class="native-input">
+        </div>
+        <div class="error-message" *ngIf="registerForm.get('confirmarSenha')?.errors?.['passwordMismatch'] && registerForm.get('confirmarSenha')?.touched">
+          As senhas não coincidem
+        </div>
+
+        <button 
+          type="submit"
+          [disabled]="registerForm.invalid"
+          class="login-button native-button">
+          Cadastrar
+        </button>
+      </form>
+
+      <button 
+        type="button"
+        (click)="step = 'email'"
+        class="back-button native-button">
+        Voltar
+      </button>
+    </div>
+
+  </div>
+</ion-content>
+
+
+

@@ -1,0 +1,81 @@
+<app-navbar></app-navbar>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content
+      pullingIcon="arrow-down"
+      pullingText="Puxe para atualizar"
+      refreshingSpinner="circles"
+      refreshingText="Atualizando...">
+    </ion-refresher-content>
+  </ion-refresher>
+  
+  <!-- Seção de Ginásios -->
+  <div class="section-container" *ngIf="ginasios.length > 0">
+    <h2 class="section-title">Ginásios Disponíveis</h2>
+    <div class="horizontal-scroll">
+      <div class="gym-card" *ngFor="let ginasio of ginasios" (click)="abrirGinasio(ginasio)">
+        <div class="gym-image-container">
+          <img 
+            [src]="ginasio.imagem || 'assets/icon/favicon.png'" 
+            [alt]="ginasio.nome"
+            class="gym-image"
+            onerror="this.src='assets/icon/favicon.png'">
+        </div>
+        <div class="gym-info">
+          <h3 class="gym-name">{{ ginasio.nome }}</h3>
+          <p class="gym-location">
+            <ion-icon name="location-outline"></ion-icon>
+            {{ ginasio.cidade }}, {{ ginasio.uf }}
+          </p>
+          <p class="gym-address">
+            {{ ginasio.rua }}, {{ ginasio.numero }} - {{ ginasio.bairro }}
+          </p>
+          <p class="gym-hours" *ngIf="ginasio.hora_abertura && ginasio.hora_fechamento">
+            <ion-icon name="time-outline"></ion-icon>
+            {{ formatarHorario(ginasio.hora_abertura) }} - {{ formatarHorario(ginasio.hora_fechamento) }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seção de Reservas -->
+  <div class="section-container" *ngIf="esportes.length > 0">
+    <h2 class="section-title">Reservas</h2>
+    <div class="reservas-grid">
+      <div class="reserva-card" *ngFor="let reserva of esportes" (click)="abrirReserva(reserva)">
+        <div class="reserva-header">
+          <div class="reserva-esporte">
+            <ion-icon name="football-outline"></ion-icon>
+            <span>{{ reserva.nome_esporte }}</span>
+          </div>
+          <div class="reserva-status" [class.status-confirmada]="reserva.status === 'confirmada'" 
+               [class.status-pendente]="reserva.status !== 'confirmada'">
+            {{ reserva.status }}
+          </div>
+        </div>
+        
+        <div class="reserva-body">
+          <div class="reserva-info-item">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <span>{{ formatarData(reserva.data) }}</span>
+          </div>
+          <div class="reserva-info-item">
+            <ion-icon name="time-outline"></ion-icon>
+            <span>{{ formatarHorario(reserva.hora_inicio) }} - {{ formatarHorario(reserva.hora_fim) }}</span>
+          </div>
+          <div class="reserva-info-item" *ngIf="reserva.observacoes">
+            <ion-icon name="document-text-outline"></ion-icon>
+            <span>{{ reserva.observacoes }}</span>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+</ion-content>
+
+<app-footer></app-footer>
