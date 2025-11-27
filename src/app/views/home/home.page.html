@@ -18,10 +18,10 @@
       <div class="gym-card" *ngFor="let ginasio of ginasios" (click)="abrirGinasio(ginasio)">
         <div class="gym-image-container">
           <img 
-            [src]="ginasio.imagem || 'assets/icon/favicon.png'" 
+            [src]="ginasio.imagem || 'assets/quadra-generica.png'" 
             [alt]="ginasio.nome"
             class="gym-image"
-            onerror="this.src='assets/icon/favicon.png'">
+            onerror="this.src='assets/quadra-generica.png'">
         </div>
         <div class="gym-info">
           <h3 class="gym-name">{{ ginasio.nome }}</h3>
