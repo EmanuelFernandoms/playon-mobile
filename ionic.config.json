@@ -1,0 +1,7 @@
+{
+  "name": "playon",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
