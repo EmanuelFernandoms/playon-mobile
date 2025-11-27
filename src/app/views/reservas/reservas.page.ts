@@ -1,5 +1,4 @@
 import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { IonicModule, RefresherCustomEvent } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
@@ -16,7 +15,6 @@ import { environment } from 'src/environments/environment';
     CommonModule,
     FormsModule,
     IonicModule,
-    HttpClientModule,
     NavbarComponent,
     FooterComponent,
   ],
@@ -29,7 +27,6 @@ export class ReservasPage implements OnInit, AfterViewInit, OnDestroy {
   carregando = true;
 
   constructor(
-    private http: HttpClient,
     private router: Router,
     private authService: AuthService
   ) {}
@@ -38,7 +35,7 @@ export class ReservasPage implements OnInit, AfterViewInit, OnDestroy {
     this.carregarReservas();
   }
 
-  carregarReservas() {
+  async carregarReservas() {
     const usuario = this.authService.getCurrentUser();
     if (!usuario || !usuario.id) {
       this.carregando = false;
@@ -46,18 +43,17 @@ export class ReservasPage implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.carregando = true;
-    this.http.get<any[]>(`${environment.apiBaseUrl}/getBookingByUserId?id=${usuario.id}`)
-      .subscribe({
-        next: (res) => {
-          this.reservas = res || [];
-          this.carregando = false;
-          console.log('Reservas:', res);
-        },
-        error: (erro) => {
-          console.error('Erro ao carregar reservas:', erro);
-          this.carregando = false;
-        }
-      });
+    try {
+      const response = await fetch(`${environment.apiBaseUrl}/getBookingByUserId?id=${usuario.id}`);
+      const res = await response.json();
+      this.reservas = res || [];
+      console.log('Reservas:', res);
+    } catch (erro) {
+      console.error('Erro ao carregar reservas:', erro);
+      this.reservas = [];
+    } finally {
+      this.carregando = false;
+    }
   }
 
   doRefresh(event: RefresherCustomEvent) {

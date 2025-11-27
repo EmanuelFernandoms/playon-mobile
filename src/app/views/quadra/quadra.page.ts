@@ -1,5 +1,4 @@
 import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -18,7 +17,6 @@ import { environment } from 'src/environments/environment';
     FormsModule,
     ReactiveFormsModule,
     IonicModule,
-    HttpClientModule,
     NavbarComponent,
     FooterComponent,
   ],
@@ -50,7 +48,6 @@ export class QuadraPage implements OnInit, AfterViewInit, OnDestroy {
   carregando = false;
 
   constructor(
-    private http: HttpClient,
     private route: ActivatedRoute,
     private router: Router,
     private authService: AuthService,
@@ -89,22 +86,18 @@ export class QuadraPage implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  carregarEsportes() {
+  async carregarEsportes() {
     if (!this.quadraId) return;
     
-    // Busca esportes disponíveis para esta quadra
-    this.http.get<any[]>(`${environment.apiBaseUrl}/getSportsByGym?id=${this.quadraId}`)
-      .subscribe({
-        next: (res) => {
-          this.esportes = res;
-          console.log('Esportes disponíveis:', res);
-        },
-        error: (erro) => {
-          console.error('Erro ao carregar esportes:', erro);
-          // Fallback para lista vazia em caso de erro
-          this.esportes = [];
-        }
-      });
+    try {
+      const response = await fetch(`${environment.apiBaseUrl}/getSportsByGym?id=${this.quadraId}`);
+      const res = await response.json();
+      this.esportes = res || [];
+      console.log('Esportes disponíveis:', res);
+    } catch (erro) {
+      console.error('Erro ao carregar esportes:', erro);
+      this.esportes = [];
+    }
   }
 
   selecionarData(data: Date) {
@@ -129,24 +122,23 @@ export class QuadraPage implements OnInit, AfterViewInit, OnDestroy {
     return dataComparar < hoje;
   }
 
-  carregarReservasDoDia() {
+  async carregarReservasDoDia() {
     if (!this.selectedDateString || !this.quadraId) return;
     
     this.carregando = true;
-    // O parâmetro 'gym' na verdade se refere ao id da quadra
-    this.http.get<any[]>(`${environment.apiBaseUrl}/getBookingByDate?gym=${this.quadraId}&date=${this.selectedDateString}`)
-      .subscribe({
-        next: (res) => {
-          // A resposta já vem filtrada pela quadra, mas vamos garantir
-          this.reservasDoDia = res.filter(r => r.id_quadra == this.quadraId);
-          this.calcularHorariosLivres();
-          this.carregando = false;
-        },
-        error: (erro) => {
-          console.error('Erro ao carregar reservas:', erro);
-          this.carregando = false;
-        }
-      });
+    try {
+      // O parâmetro 'gym' na verdade se refere ao id da quadra
+      const response = await fetch(`${environment.apiBaseUrl}/getBookingByDate?gym=${this.quadraId}&date=${this.selectedDateString}`);
+      const res = await response.json();
+      // A resposta já vem filtrada pela quadra, mas vamos garantir
+      this.reservasDoDia = (res || []).filter((r: any) => r.id_quadra == this.quadraId);
+      this.calcularHorariosLivres();
+    } catch (erro) {
+      console.error('Erro ao carregar reservas:', erro);
+      this.reservasDoDia = [];
+    } finally {
+      this.carregando = false;
+    }
   }
 
   calcularHorariosLivres() {
@@ -262,35 +254,40 @@ export class QuadraPage implements OnInit, AfterViewInit, OnDestroy {
       id_esporte: this.reservaForm.get('id_esporte')?.value
     };
 
-    this.http.put<any>(`${environment.apiBaseUrl}/registerBooking`, body)
-      .subscribe({
-        next: (res) => {
-          loading.dismiss();
-          this.showToast('Reserva criada com sucesso!', 'success');
-          
-          // O endpoint retorna o ID da reserva
-          // Pode ser res.id ou res (se a resposta for apenas o ID)
-          const reservaId = res?.id || res;
-          
-          if (reservaId) {
-            setTimeout(() => {
-              this.router.navigate(['/reserva', reservaId]);
-            }, 500); // Pequeno delay para o toast aparecer
-          } else {
-            // Se não tiver ID, recarrega as reservas do dia
-            this.carregarReservasDoDia();
-            // Limpa seleção e formulário
-            this.horariosSelecionados = [];
-            this.mostrarFormulario = false;
-            this.reservaForm.reset();
-          }
+    try {
+      const response = await fetch(`${environment.apiBaseUrl}/registerBooking`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
         },
-        error: (erro) => {
-          loading.dismiss();
-          console.error('Erro ao criar reserva:', erro);
-          this.showToast('Erro ao criar reserva. Tente novamente.', 'danger');
-        }
+        body: JSON.stringify(body)
       });
+      
+      const res = await response.json();
+      loading.dismiss();
+      this.showToast('Reserva criada com sucesso!', 'success');
+      
+      // O endpoint retorna o ID da reserva
+      // Pode ser res.id ou res (se a resposta for apenas o ID)
+      const reservaId = res?.id || res;
+      
+      if (reservaId) {
+        setTimeout(() => {
+          this.router.navigate(['/reserva', reservaId]);
+        }, 500); // Pequeno delay para o toast aparecer
+      } else {
+        // Se não tiver ID, recarrega as reservas do dia
+        this.carregarReservasDoDia();
+        // Limpa seleção e formulário
+        this.horariosSelecionados = [];
+        this.mostrarFormulario = false;
+        this.reservaForm.reset();
+      }
+    } catch (erro) {
+      loading.dismiss();
+      console.error('Erro ao criar reserva:', erro);
+      this.showToast('Erro ao criar reserva. Tente novamente.', 'danger');
+    }
   }
 
   formatarDataParaAPI(data: Date): string {

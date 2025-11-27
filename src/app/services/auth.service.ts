@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, from } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 
 export interface User {
@@ -19,7 +18,7 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(this.getStoredUser());
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient) {
+  constructor() {
     // Verifica se há usuário salvo no localStorage ao inicializar
     const storedUser = this.getStoredUser();
     if (storedUser) {
@@ -28,97 +27,110 @@ export class AuthService {
   }
 
   // Helper para enviar dados como form-urlencoded
-  private getFormUrlEncodedParams(data: any): HttpParams {
-    let params = new HttpParams();
+  private getFormUrlEncoded(data: any): string {
+    const params = new URLSearchParams();
     for (const key in data) {
       if (data.hasOwnProperty(key)) {
-        params = params.set(key, data[key]);
+        params.append(key, data[key]);
       }
     }
-    return params;
+    return params.toString();
+  }
+
+  // Função genérica para fazer requisições HTTP nativas
+  private async fetchNative<T>(url: string, options: RequestInit = {}): Promise<T> {
+    console.log('🌐 Fetch nativo - URL:', url);
+    console.log('🌐 Fetch nativo - Options:', JSON.stringify(options, null, 2));
+    
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          ...options.headers
+        }
+      });
+      
+      console.log('🌐 Fetch nativo - Status:', response.status);
+      console.log('🌐 Fetch nativo - OK:', response.ok);
+      console.log('🌐 Fetch nativo - Headers:', Object.fromEntries(response.headers.entries()));
+      
+      const text = await response.text();
+      console.log('🌐 Fetch nativo - Resposta texto:', text);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${text}`);
+      }
+      
+      try {
+        const json = JSON.parse(text);
+        console.log('🌐 Fetch nativo - Resposta JSON:', json);
+        return json as T;
+      } catch (e) {
+        console.error('🌐 Fetch nativo - Erro ao parsear JSON:', e);
+        throw new Error('Resposta não é JSON válido');
+      }
+    } catch (error) {
+      console.error('🌐 Fetch nativo - Erro:', error);
+      throw error;
+    }
   }
 
   // Login
   login(email: string, senha: string): Observable<User> {
     const url = `${environment.apiBaseUrl}/startSessionUser`;
-    const headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
-    const body = this.getFormUrlEncodedParams({ email, senha });
+    const body = this.getFormUrlEncoded({ email, senha });
     
     console.log('🔐 AuthService.login - URL:', url);
-    console.log('🔐 AuthService.login - Body:', body.toString());
-    console.log('🔐 AuthService.login - Headers:', headers);
-    console.log('🔐 AuthService.login - HttpClient:', this.http);
+    console.log('🔐 AuthService.login - Body:', body);
     
-    // Teste com fetch nativo para debug
-    console.log('🔐 AuthService.login - Testando com fetch nativo...');
-    const bodyString = body.toString();
-    fetch(url, {
+    const promise = this.fetchNative<User>(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: bodyString
-    })
-    .then(response => {
-      console.log('✅ Fetch nativo - Status:', response.status);
-      console.log('✅ Fetch nativo - OK:', response.ok);
-      return response.text();
-    })
-    .then(text => {
-      console.log('✅ Fetch nativo - Resposta texto:', text);
-      try {
-        const json = JSON.parse(text);
-        console.log('✅ Fetch nativo - Resposta JSON:', json);
-      } catch (e) {
-        console.log('⚠️ Fetch nativo - Resposta não é JSON');
+      body: body
+    }).then((response) => {
+      console.log('✅ AuthService.login - Resposta recebida:', response);
+      if (response && response.id) {
+        this.setUser(response);
+        console.log('✅ Usuário salvo no localStorage');
+        return response;
+      } else {
+        console.error('❌ Resposta inválida - sem ID:', response);
+        throw new Error('Resposta inválida do servidor');
       }
-    })
-    .catch(error => {
-      console.error('❌ Fetch nativo - Erro:', error);
     });
     
-    console.log('🔐 AuthService.login - Criando requisição HTTP com Angular...');
-    const request = this.http.post<User>(url, body.toString(), { headers });
-    console.log('🔐 AuthService.login - Requisição criada:', request);
-    
-    return request.pipe(
-      tap({
-        next: (response) => {
-          console.log('✅ AuthService.login - Resposta recebida:', response);
-          if (response && response.id) {
-            this.setUser(response);
-            console.log('✅ Usuário salvo no localStorage');
-          } else {
-            console.error('❌ Resposta inválida - sem ID:', response);
-          }
-        },
-        error: (error) => {
-          console.error('❌ AuthService.login - Erro na requisição:', error);
-          console.error('❌ AuthService.login - Status:', error?.status);
-          console.error('❌ AuthService.login - URL da requisição:', error?.url);
-          console.error('❌ AuthService.login - Error completo:', JSON.stringify(error, null, 2));
-        }
-      })
-    );
+    return from(promise);
   }
 
   // Enviar código de verificação
   sendEmailToken(email: string): Observable<any> {
-    const headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
-    const body = this.getFormUrlEncodedParams({ email });
-    console.log('Enviando email token para:', email);
-    return this.http.post<any>(`${environment.apiBaseUrl}/sendEmailTokenUser`, body.toString(), { headers });
+    const url = `${environment.apiBaseUrl}/sendEmailTokenUser`;
+    const body = this.getFormUrlEncoded({ email });
+    console.log('📧 Enviando email token para:', email);
+    const promise = this.fetchNative<any>(url, {
+      method: 'POST',
+      body: body
+    });
+    return from(promise);
   }
 
-  // Registrar usuário (usa JSON porque é PUT)
+  // Registrar usuário
   register(email: string, senha: string, nome: string, telefone: string): Observable<User> {
-    const body = { email, senha, nome, telefone };
+    const url = `${environment.apiBaseUrl}/registerUser`;
+    const body = JSON.stringify({ email, senha, nome, telefone });
     
-    return this.http.put<User>(`${environment.apiBaseUrl}/registerUser`, body).pipe(
-      tap((user) => {
-        this.setUser(user);
-      })
-    );
+    const promise = this.fetchNative<User>(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: body
+    }).then((user) => {
+      this.setUser(user);
+      return user;
+    });
+    
+    return from(promise);
   }
 
   // Definir usuário na sessão

@@ -1,10 +1,8 @@
 import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { IonicModule, RefresherCustomEvent } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
 import { NavbarComponent } from 'src/app/components/navbar/navbar.component';
 import { FooterComponent } from 'src/app/components/footer/footer.component';
 import { environment } from 'src/environments/environment';
@@ -18,7 +16,6 @@ import { environment } from 'src/environments/environment';
     CommonModule,
     FormsModule,
     IonicModule,
-    HttpClientModule,
     NavbarComponent,
     FooterComponent,
   ],
@@ -31,7 +28,6 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
   ginasios: any[] = [];
 
   constructor(
-    private http: HttpClient,
     private router: Router
   ) {}
 
@@ -68,38 +64,56 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
     delete (window as any).handleAbrirReserva;
   }
 
-  carregarEsportes() {
+  async carregarEsportes() {
     const url = `${environment.apiBaseUrl}/getBookingAll`;
     console.log('📡 Requisição ESPORTES para:', url);
     
-    this.http.post<any[]>(url, {}).subscribe({
-      next: (res) => {
-        console.log('✅ Esportes recebidos:', res);
-        this.esportes = res;
-      },
-      error: (erro) => {
-        console.error('❌ Erro ao carregar esportes:', erro);
-        console.error('❌ Status:', erro.status);
-        console.error('❌ URL:', erro.url);
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: ''
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
       }
-    });
+      
+      const res = await response.json();
+      console.log('✅ Esportes recebidos:', res);
+      this.esportes = res || [];
+    } catch (erro) {
+      console.error('❌ Erro ao carregar esportes:', erro);
+      this.esportes = [];
+    }
   }
 
-  carregarGinasios() {
+  async carregarGinasios() {
     const url = `${environment.apiBaseUrl}/load-gym-all`;
     console.log('📡 Requisição GINÁSIOS para:', url);
     
-    this.http.post<any[]>(url, {}).subscribe({
-      next: (res) => {
-        console.log('✅ Ginásios recebidos:', res);
-        this.ginasios = res;
-      },
-      error: (erro) => {
-        console.error('❌ Erro ao carregar ginásios:', erro);
-        console.error('❌ Status:', erro.status);
-        console.error('❌ URL:', erro.url);
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: ''
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
       }
-    });
+      
+      const res = await response.json();
+      console.log('✅ Ginásios recebidos:', res);
+      this.ginasios = res || [];
+    } catch (erro) {
+      console.error('❌ Erro ao carregar ginásios:', erro);
+      this.ginasios = [];
+    }
   }
 
   abrirGinasio(ginasio: any) {
@@ -134,23 +148,30 @@ export class HomePage implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  doRefresh(event: RefresherCustomEvent) {
+  async doRefresh(event: RefresherCustomEvent) {
     // Recarrega ambos os dados simultaneamente
-    forkJoin({
-      esportes: this.http.post<any[]>(`${environment.apiBaseUrl}/getBookingAll`, {}),
-      ginasios: this.http.post<any[]>(`${environment.apiBaseUrl}/load-gym-all`, {})
-    }).subscribe({
-      next: (res) => {
-        this.esportes = res.esportes || [];
-        this.ginasios = res.ginasios || [];
-        console.log('Dados atualizados:', res);
-        event.target.complete();
-      },
-      error: (erro) => {
-        console.error('Erro ao atualizar dados:', erro);
-        event.target.complete();
-      }
-    });
+    try {
+      const [esportesRes, ginasiosRes] = await Promise.all([
+        fetch(`${environment.apiBaseUrl}/getBookingAll`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: ''
+        }),
+        fetch(`${environment.apiBaseUrl}/load-gym-all`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: ''
+        })
+      ]);
+      
+      this.esportes = await esportesRes.json() || [];
+      this.ginasios = await ginasiosRes.json() || [];
+      console.log('Dados atualizados');
+    } catch (erro) {
+      console.error('Erro ao atualizar dados:', erro);
+    } finally {
+      event.target.complete();
+    }
   }
 
 }

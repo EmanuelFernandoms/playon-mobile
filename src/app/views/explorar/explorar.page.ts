@@ -1,5 +1,4 @@
 import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
-import { HttpClient, HttpClientModule, HttpHeaders, HttpParams } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
@@ -16,7 +15,6 @@ import { environment } from 'src/environments/environment';
     FormsModule,
     ReactiveFormsModule,
     IonicModule,
-    HttpClientModule,
     NavbarComponent,
     FooterComponent,
   ],
@@ -33,7 +31,6 @@ export class ExplorarPage implements OnInit, AfterViewInit, OnDestroy {
   ginasios: any[] = [];
 
   constructor(
-    private http: HttpClient,
     private router: Router,
     private fb: FormBuilder
   ) {
@@ -54,38 +51,47 @@ export class ExplorarPage implements OnInit, AfterViewInit, OnDestroy {
     this.buscarReservas();
   }
 
-  carregarGinasios() {
-    this.http.post<any[]>(`${environment.apiBaseUrl}/load-gym-all`, {})
-      .subscribe({
-        next: (res) => {
-          this.ginasios = res;
-          this.carregarQuadras();
-        },
-        error: (erro) => {
-          console.error('Erro ao carregar ginásios:', erro);
-        }
+  async carregarGinasios() {
+    try {
+      const response = await fetch(`${environment.apiBaseUrl}/load-gym-all`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: ''
       });
+      const res = await response.json();
+      this.ginasios = res || [];
+      this.carregarQuadras();
+    } catch (erro) {
+      console.error('Erro ao carregar ginásios:', erro);
+      this.ginasios = [];
+    }
   }
 
-  carregarQuadras() {
+  async carregarQuadras() {
     // Carrega quadras de todos os ginásios
-    const quadrasPromises = this.ginasios.map(ginasio => 
-      this.http.get<any[]>(`${environment.apiBaseUrl}/getCourtByGym?id=${ginasio.id}`).toPromise()
-    );
+    const quadrasPromises = this.ginasios.map(async (ginasio) => {
+      try {
+        const response = await fetch(`${environment.apiBaseUrl}/getCourtByGym?id=${ginasio.id}`);
+        return await response.json();
+      } catch (erro) {
+        console.error(`Erro ao carregar quadras do ginásio ${ginasio.id}:`, erro);
+        return null;
+      }
+    });
 
-    Promise.all(quadrasPromises)
-      .then(results => {
-        const todasQuadras: any[] = [];
-        results.forEach(quadras => {
-          if (quadras) {
-            todasQuadras.push(...quadras);
-          }
-        });
-        this.quadrasUnicas = todasQuadras;
-      })
-      .catch(erro => {
-        console.error('Erro ao carregar quadras:', erro);
+    try {
+      const results = await Promise.all(quadrasPromises);
+      const todasQuadras: any[] = [];
+      results.forEach(quadras => {
+        if (quadras) {
+          todasQuadras.push(...quadras);
+        }
       });
+      this.quadrasUnicas = todasQuadras;
+    } catch (erro) {
+      console.error('Erro ao carregar quadras:', erro);
+      this.quadrasUnicas = [];
+    }
   }
 
   buscarReservas() {
@@ -124,30 +130,31 @@ export class ExplorarPage implements OnInit, AfterViewInit, OnDestroy {
       body.append('uf', formValue.uf.trim());
     }
 
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/x-www-form-urlencoded'
-    });
-
     // Se não houver filtros, envia body vazio (ou sem body)
     const bodyToSend = body.toString() || '';
 
-    this.http.post<any[]>(`${environment.apiBaseUrl}/getBookingAll`, bodyToSend, { headers })
-      .subscribe({
-        next: (res) => {
-          this.reservas = res || [];
-          // Extrai esportes únicos apenas se ainda não tiver ou se a lista mudou
-          if (this.esportesUnicos.length === 0 || res.length > 0) {
-            this.extrairEsportesUnicos();
-          }
-          this.carregando = false;
-          console.log('Reservas encontradas:', res);
+    try {
+      const response = await fetch(`${environment.apiBaseUrl}/getBookingAll`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
         },
-        error: (erro) => {
-          console.error('Erro ao buscar reservas:', erro);
-          this.reservas = [];
-          this.carregando = false;
-        }
+        body: bodyToSend
       });
+      
+      const res = await response.json();
+      this.reservas = res || [];
+      // Extrai esportes únicos apenas se ainda não tiver ou se a lista mudou
+      if (this.esportesUnicos.length === 0 || res.length > 0) {
+        this.extrairEsportesUnicos();
+      }
+      console.log('Reservas encontradas:', res);
+    } catch (erro) {
+      console.error('Erro ao buscar reservas:', erro);
+      this.reservas = [];
+    } finally {
+      this.carregando = false;
+    }
   }
 
   extrairEsportesUnicos() {

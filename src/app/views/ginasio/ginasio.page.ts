@@ -1,5 +1,4 @@
 import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
@@ -15,7 +14,6 @@ import { environment } from 'src/environments/environment';
     CommonModule,
     FormsModule,
     IonicModule,
-    HttpClientModule,
     NavbarComponent,
     FooterComponent,
   ],
@@ -29,7 +27,6 @@ export class GinasioPage implements OnInit, AfterViewInit, OnDestroy {
   ginasioId: number | string = '';
 
   constructor(
-    private http: HttpClient,
     private route: ActivatedRoute,
     private router: Router
   ) {}
@@ -54,39 +51,45 @@ export class GinasioPage implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  carregarGinasio() {
+  async carregarGinasio() {
     // Se não tiver o ginásio completo, busca novamente
     if (!this.ginasio) {
-      this.http.post<any[]>(`${environment.apiBaseUrl}/load-gym-all`, {})
-        .subscribe((res) => {
-          // Busca pelo id (que agora sempre existe)
-          this.ginasio = res.find((g: any) => g.id == this.ginasioId);
-          if (this.ginasio) {
-            this.ginasioId = this.ginasio.id;
-          }
-          console.log('Ginásio:', this.ginasio);
-        }, (erro) => {
-          console.error('Erro ao carregar ginásio:', erro);
+      try {
+        const response = await fetch(`${environment.apiBaseUrl}/load-gym-all`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: ''
         });
+        const res = await response.json();
+        // Busca pelo id (que agora sempre existe)
+        this.ginasio = res.find((g: any) => g.id == this.ginasioId);
+        if (this.ginasio) {
+          this.ginasioId = this.ginasio.id;
+        }
+        console.log('Ginásio:', this.ginasio);
+      } catch (erro) {
+        console.error('Erro ao carregar ginásio:', erro);
+      }
     } else {
       this.ginasioId = this.ginasio.id;
     }
   }
 
-  carregarQuadras() {
+  async carregarQuadras() {
     if (!this.ginasioId) {
       console.error('ID do ginásio não disponível');
       return;
     }
 
-    // GET request com parâmetro id na query string
-    this.http.get<any[]>(`${environment.apiBaseUrl}/getCourtByGym?id=${this.ginasioId}`)
-      .subscribe((res) => {
-        this.quadras = res;
-        console.log('Quadras:', res);
-      }, (erro) => {
-        console.error('Erro ao carregar quadras:', erro);
-      });
+    try {
+      const response = await fetch(`${environment.apiBaseUrl}/getCourtByGym?id=${this.ginasioId}`);
+      const res = await response.json();
+      this.quadras = res || [];
+      console.log('Quadras:', res);
+    } catch (erro) {
+      console.error('Erro ao carregar quadras:', erro);
+      this.quadras = [];
+    }
   }
 
   formatarHorario(horario: string): string {
