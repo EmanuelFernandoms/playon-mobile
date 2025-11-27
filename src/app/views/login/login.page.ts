@@ -167,7 +167,12 @@ export class LoginPage implements OnInit, AfterViewInit, OnDestroy {
       console.log('🔐 Fazendo login com:', { email, senha: '***' });
       console.log('🔐 API URL:', environment.apiBaseUrl);
       
-      this.authService.login(email, senha).subscribe({
+      console.log('🔐 Chamando authService.login...');
+      const loginObservable = this.authService.login(email, senha);
+      console.log('🔐 Observable criado:', loginObservable);
+      
+      console.log('🔐 Fazendo subscribe...');
+      loginObservable.subscribe({
         next: (response) => {
           console.log('✅ Resposta do login:', response);
           loading.dismiss();
@@ -186,12 +191,16 @@ export class LoginPage implements OnInit, AfterViewInit, OnDestroy {
           console.error('❌ Status:', error.status);
           console.error('❌ URL:', error.url);
           console.error('❌ Mensagem:', error.message);
-          console.error('❌ Error completo:', error);
+          console.error('❌ Error completo:', JSON.stringify(error, null, 2));
           loading.dismiss();
           const errorMessage = error?.error?.message || 'Email ou senha incorretos';
           this.showToast(errorMessage, 'danger');
+        },
+        complete: () => {
+          console.log('🔐 Observable completo (finalizado)');
         }
       });
+      console.log('🔐 Subscribe executado (após chamada)');
     } else {
       console.error('❌ Form inválido!', this.loginForm.errors);
       console.error('❌ Email errors:', this.loginForm.get('email')?.errors);

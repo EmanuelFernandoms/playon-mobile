@@ -47,15 +47,56 @@ export class AuthService {
     console.log('🔐 AuthService.login - URL:', url);
     console.log('🔐 AuthService.login - Body:', body.toString());
     console.log('🔐 AuthService.login - Headers:', headers);
+    console.log('🔐 AuthService.login - HttpClient:', this.http);
     
-    return this.http.post<User>(url, body.toString(), { headers }).pipe(
-      tap((response) => {
-        console.log('✅ AuthService.login - Resposta:', response);
-        if (response && response.id) {
-          this.setUser(response);
-          console.log('✅ Usuário salvo no localStorage');
-        } else {
-          console.error('❌ Resposta inválida - sem ID:', response);
+    // Teste com fetch nativo para debug
+    console.log('🔐 AuthService.login - Testando com fetch nativo...');
+    const bodyString = body.toString();
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: bodyString
+    })
+    .then(response => {
+      console.log('✅ Fetch nativo - Status:', response.status);
+      console.log('✅ Fetch nativo - OK:', response.ok);
+      return response.text();
+    })
+    .then(text => {
+      console.log('✅ Fetch nativo - Resposta texto:', text);
+      try {
+        const json = JSON.parse(text);
+        console.log('✅ Fetch nativo - Resposta JSON:', json);
+      } catch (e) {
+        console.log('⚠️ Fetch nativo - Resposta não é JSON');
+      }
+    })
+    .catch(error => {
+      console.error('❌ Fetch nativo - Erro:', error);
+    });
+    
+    console.log('🔐 AuthService.login - Criando requisição HTTP com Angular...');
+    const request = this.http.post<User>(url, body.toString(), { headers });
+    console.log('🔐 AuthService.login - Requisição criada:', request);
+    
+    return request.pipe(
+      tap({
+        next: (response) => {
+          console.log('✅ AuthService.login - Resposta recebida:', response);
+          if (response && response.id) {
+            this.setUser(response);
+            console.log('✅ Usuário salvo no localStorage');
+          } else {
+            console.error('❌ Resposta inválida - sem ID:', response);
+          }
+        },
+        error: (error) => {
+          console.error('❌ AuthService.login - Erro na requisição:', error);
+          console.error('❌ AuthService.login - Status:', error?.status);
+          console.error('❌ AuthService.login - URL da requisição:', error?.url);
+          console.error('❌ AuthService.login - Error completo:', JSON.stringify(error, null, 2));
         }
       })
     );
