@@ -53,7 +53,14 @@ export class AuthService {
       
       console.log('🌐 Fetch nativo - Status:', response.status);
       console.log('🌐 Fetch nativo - OK:', response.ok);
-      console.log('🌐 Fetch nativo - Headers:', Object.fromEntries(response.headers.entries()));
+      // Headers logging (compatível com versões antigas)
+      const headersObj: any = {};
+      if (response.headers && response.headers.forEach) {
+        response.headers.forEach((value: string, key: string) => {
+          headersObj[key] = value;
+        });
+      }
+      console.log('🌐 Fetch nativo - Headers:', headersObj);
       
       const text = await response.text();
       console.log('🌐 Fetch nativo - Resposta texto:', text);

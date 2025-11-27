@@ -94,7 +94,7 @@ export class ExplorarPage implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  buscarReservas() {
+  async buscarReservas() {
     this.carregando = true;
     
     const formValue = this.filtrosForm.value;
