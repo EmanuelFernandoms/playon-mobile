@@ -42,17 +42,30 @@ export class AuthService {
     console.log('🌐 Fetch nativo - URL:', url);
     console.log('🌐 Fetch nativo - Options:', JSON.stringify(options, null, 2));
     
+    // Prepara headers, preservando os que já existem
+    const headers: HeadersInit = {
+      ...(options.headers as HeadersInit)
+    };
+    
+    // Só adiciona Content-Type se não foi especificado
+    if (!headers['Content-Type'] && !headers['content-type']) {
+      headers['Content-Type'] = 'application/x-www-form-urlencoded';
+    }
+    
     try {
       const response = await fetch(url, {
         ...options,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          ...options.headers
-        }
+        method: options.method || 'GET',
+        mode: 'cors', // Explicitamente permite CORS
+        credentials: 'omit', // Não envia cookies (pode mudar se necessário)
+        headers: headers
       });
       
       console.log('🌐 Fetch nativo - Status:', response.status);
       console.log('🌐 Fetch nativo - OK:', response.ok);
+      console.log('🌐 Fetch nativo - Type:', response.type);
+      console.log('🌐 Fetch nativo - Redirected:', response.redirected);
+      
       // Headers logging (compatível com versões antigas)
       const headersObj: any = {};
       if (response.headers && response.headers.forEach) {
@@ -66,6 +79,10 @@ export class AuthService {
       console.log('🌐 Fetch nativo - Resposta texto:', text);
       
       if (!response.ok) {
+        // Se for erro de CORS, o response.status pode ser 0
+        if (response.status === 0 || response.type === 'opaque') {
+          throw new Error('Erro de CORS: O servidor não permite requisições deste domínio. Verifique as configurações CORS no servidor.');
+        }
         throw new Error(`HTTP ${response.status}: ${text}`);
       }
       
@@ -77,8 +94,18 @@ export class AuthService {
         console.error('🌐 Fetch nativo - Erro ao parsear JSON:', e);
         throw new Error('Resposta não é JSON válido');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('🌐 Fetch nativo - Erro:', error);
+      
+      // Tratamento específico para erros de CORS
+      if (error.message && error.message.includes('CORS')) {
+        throw error;
+      }
+      
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Erro de rede ou CORS. Verifique se o servidor está acessível e permite requisições CORS.');
+      }
+      
       throw error;
     }
   }
