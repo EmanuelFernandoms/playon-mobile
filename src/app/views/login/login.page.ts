@@ -66,7 +66,11 @@ export class LoginPage implements OnInit {
     // Se já estiver autenticado, redireciona para home
     if (this.authService.isAuthenticated()) {
       this.router.navigate(['/home']);
+      return;
     }
+    
+    // Restaura estado do cadastro se existir
+    this.restoreRegistrationState();
     
     // Atualiza logo baseado no tema
     this.updateLogo();
@@ -81,6 +85,53 @@ export class LoginPage implements OnInit {
       console.log('LoginForm válido:', this.loginForm.valid);
       console.log('LoginForm controls:', Object.keys(this.loginForm.controls));
     }, 100);
+  }
+
+  private saveRegistrationState() {
+    const state = {
+      step: this.step,
+      userEmail: this.userEmail,
+      emailToken: this.emailToken,
+      isLoginMode: this.isLoginMode
+    };
+    localStorage.setItem('registrationState', JSON.stringify(state));
+    console.log('💾 Estado do cadastro salvo:', state);
+  }
+
+  private restoreRegistrationState() {
+    try {
+      const saved = localStorage.getItem('registrationState');
+      if (saved) {
+        const state = JSON.parse(saved);
+        console.log('📂 Estado do cadastro restaurado:', state);
+        
+        // Só restaura se não estiver autenticado e se o estado for válido
+        if (state.userEmail && (state.step === 'verify' || state.step === 'register')) {
+          this.step = state.step;
+          this.userEmail = state.userEmail;
+          this.emailToken = state.emailToken || '';
+          this.isLoginMode = false;
+          
+          // Restaura o email no formulário se estiver no passo de verificação
+          if (state.step === 'verify' || state.step === 'register') {
+            this.emailTokenForm.patchValue({ email: state.userEmail });
+          }
+          
+          console.log('✅ Estado restaurado com sucesso');
+        } else {
+          // Limpa estado inválido
+          this.clearRegistrationState();
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao restaurar estado:', error);
+      this.clearRegistrationState();
+    }
+  }
+
+  private clearRegistrationState() {
+    localStorage.removeItem('registrationState');
+    console.log('🗑️ Estado do cadastro limpo');
   }
 
 
@@ -106,6 +157,13 @@ export class LoginPage implements OnInit {
     this.loginForm.reset();
     this.registerForm.reset();
     this.emailTokenForm.reset();
+    
+    // Se voltou para login, limpa o estado do cadastro
+    if (this.isLoginMode) {
+      this.clearRegistrationState();
+      this.userEmail = '';
+      this.emailToken = '';
+    }
   }
 
   async onLogin() {
@@ -135,6 +193,7 @@ export class LoginPage implements OnInit {
           // Verifica se o login foi bem-sucedido (usuário foi salvo)
           if (this.authService.isAuthenticated()) {
             console.log('✅ Usuário autenticado, redirecionando...');
+            this.clearRegistrationState(); // Limpa o estado do cadastro ao fazer login
             this.router.navigate(['/home']);
             this.showToast('Login realizado com sucesso!', 'success');
           } else {
@@ -191,6 +250,7 @@ export class LoginPage implements OnInit {
           console.log('Código recebido:', this.emailToken);
           if (this.emailToken) {
             this.step = 'verify';
+            this.saveRegistrationState(); // Salva o estado
             this.showToast('Código enviado para seu email!', 'success');
           } else {
             this.showToast('Resposta inválida do servidor.', 'danger');
@@ -216,6 +276,7 @@ export class LoginPage implements OnInit {
     
     if (codigo === tokenArmazenado) {
       this.step = 'register';
+      this.saveRegistrationState(); // Atualiza o estado
       this.showToast('Código verificado! Preencha seus dados.', 'success');
     } else {
       this.showToast('Código inválido. Tente novamente.', 'danger');
@@ -234,6 +295,7 @@ export class LoginPage implements OnInit {
       this.authService.register(this.userEmail, senha, nome, telefone).subscribe({
         next: (user) => {
           loading.dismiss();
+          this.clearRegistrationState(); // Limpa o estado após cadastro bem-sucedido
           this.router.navigate(['/home']);
           this.showToast('Cadastro realizado com sucesso!', 'success');
         },
