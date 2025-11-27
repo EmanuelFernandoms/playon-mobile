@@ -40,13 +40,22 @@ export class AuthService {
 
   // Login
   login(email: string, senha: string): Observable<User> {
+    const url = `${environment.apiBaseUrl}/startSessionUser`;
     const headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
     const body = this.getFormUrlEncodedParams({ email, senha });
     
-    return this.http.post<User>(`${environment.apiBaseUrl}/startSessionUser`, body.toString(), { headers }).pipe(
+    console.log('🔐 AuthService.login - URL:', url);
+    console.log('🔐 AuthService.login - Body:', body.toString());
+    console.log('🔐 AuthService.login - Headers:', headers);
+    
+    return this.http.post<User>(url, body.toString(), { headers }).pipe(
       tap((response) => {
+        console.log('✅ AuthService.login - Resposta:', response);
         if (response && response.id) {
           this.setUser(response);
+          console.log('✅ Usuário salvo no localStorage');
+        } else {
+          console.error('❌ Resposta inválida - sem ID:', response);
         }
       })
     );

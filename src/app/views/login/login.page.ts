@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { LoadingController, ToastController } from '@ionic/angular';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -107,6 +108,10 @@ export class LoginPage implements OnInit {
   }
 
   async onLogin() {
+    console.log('🔐 onLogin chamado!');
+    console.log('🔐 Form válido?', this.loginForm.valid);
+    console.log('🔐 Form value:', this.loginForm.value);
+    
     if (this.loginForm.valid) {
       const loading = await this.loadingController.create({
         message: 'Entrando...'
@@ -114,25 +119,38 @@ export class LoginPage implements OnInit {
       await loading.present();
 
       const { email, senha } = this.loginForm.value;
+      console.log('🔐 Fazendo login com:', { email, senha: '***' });
+      console.log('🔐 API URL:', environment.apiBaseUrl);
       
       this.authService.login(email, senha).subscribe({
         next: (response) => {
+          console.log('✅ Resposta do login:', response);
           loading.dismiss();
           // Verifica se o login foi bem-sucedido (usuário foi salvo)
           if (this.authService.isAuthenticated()) {
+            console.log('✅ Usuário autenticado, redirecionando...');
             this.router.navigate(['/home']);
             this.showToast('Login realizado com sucesso!', 'success');
           } else {
+            console.error('❌ Login falhou - usuário não autenticado');
             this.showToast('Erro ao fazer login. Tente novamente.', 'danger');
           }
         },
         error: (error) => {
+          console.error('❌ Erro no login:', error);
+          console.error('❌ Status:', error.status);
+          console.error('❌ URL:', error.url);
+          console.error('❌ Mensagem:', error.message);
+          console.error('❌ Error completo:', error);
           loading.dismiss();
           const errorMessage = error?.error?.message || 'Email ou senha incorretos';
           this.showToast(errorMessage, 'danger');
-          console.error('Erro no login:', error);
         }
       });
+    } else {
+      console.error('❌ Form inválido!', this.loginForm.errors);
+      console.error('❌ Email errors:', this.loginForm.get('email')?.errors);
+      console.error('❌ Senha errors:', this.loginForm.get('senha')?.errors);
     }
   }
 
