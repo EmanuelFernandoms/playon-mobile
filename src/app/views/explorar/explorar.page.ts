@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { HttpClient, HttpClientModule, HttpHeaders, HttpParams } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
@@ -23,7 +23,7 @@ import { environment } from 'src/environments/environment';
   templateUrl: './explorar.page.html',
   styleUrls: ['./explorar.page.scss'],
 })
-export class ExplorarPage implements OnInit {
+export class ExplorarPage implements OnInit, AfterViewInit, OnDestroy {
 
   reservas: any[] = [];
   carregando = false;
@@ -187,6 +187,27 @@ export class ExplorarPage implements OnInit {
       month: '2-digit', 
       year: 'numeric' 
     });
+  }
+
+  ngAfterViewInit() {
+    // Expor funções no window para eventos nativos
+    (window as any).handleLimparFiltros = () => {
+      console.log('🧹 handleLimparFiltros chamado via onclick nativo!');
+      this.limparFiltros();
+    };
+    
+    (window as any).handleAbrirReservaExplorar = (id: string) => {
+      console.log('📅 handleAbrirReservaExplorar chamado via onclick nativo! ID:', id);
+      const reserva = this.reservas.find(r => r.id === id);
+      if (reserva) {
+        this.abrirReserva(reserva);
+      }
+    };
+  }
+
+  ngOnDestroy() {
+    delete (window as any).handleLimparFiltros;
+    delete (window as any).handleAbrirReservaExplorar;
   }
 
 }

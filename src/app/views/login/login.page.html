@@ -10,7 +10,7 @@
     <div *ngIf="isLoginMode" class="form-container">
       <h2>Entrar</h2>
       
-      <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+      <form [formGroup]="loginForm" (ngSubmit)="onLogin()" onsubmit="event.preventDefault(); return false;">
         <div class="input-wrapper">
           <label class="input-label">Email</label>
           <input 
@@ -42,15 +42,16 @@
         </div>
 
         <button 
-          type="submit"
+          type="button"
           [disabled]="loginForm.invalid"
-          class="login-button native-button">
+          class="login-button native-button"
+          onclick="if(window.handleLogin) { event.preventDefault(); window.handleLogin(); }">
           Entrar
         </button>
       </form>
 
       <div class="toggle-mode">
-        <p>Não tem uma conta? <a (click)="toggleMode()">Cadastre-se</a></p>
+        <p>Não tem uma conta? <a href="javascript:void(0)" onclick="if(window.handleToggleMode) { event.preventDefault(); window.handleToggleMode(); }">Cadastre-se</a></p>
       </div>
     </div>
 
@@ -58,7 +59,7 @@
     <div *ngIf="!isLoginMode && step === 'email'" class="form-container">
       <h2>Criar Conta</h2>
       
-      <form [formGroup]="emailTokenForm" (ngSubmit)="onSendEmailToken()">
+      <form [formGroup]="emailTokenForm" (ngSubmit)="onSendEmailToken()" onsubmit="event.preventDefault(); if(window.handleSendEmailToken) { window.handleSendEmailToken(); } return false;">
         <div class="input-wrapper">
           <label class="input-label">Email</label>
           <input 
@@ -75,15 +76,16 @@
         </div>
 
         <button 
-          type="submit"
+          type="button"
           [disabled]="emailTokenForm.invalid"
-          class="login-button native-button">
+          class="login-button native-button"
+          onclick="if(window.handleSendEmailToken) { event.preventDefault(); event.stopPropagation(); window.handleSendEmailToken(); }">
           Enviar Código de Verificação
         </button>
       </form>
 
       <div class="toggle-mode">
-        <p>Já tem uma conta? <a (click)="toggleMode()">Entrar</a></p>
+        <p>Já tem uma conta? <a href="javascript:void(0)" onclick="if(window.handleToggleMode) { event.preventDefault(); event.stopPropagation(); window.handleToggleMode(); }">Entrar</a></p>
       </div>
     </div>
 
@@ -96,6 +98,7 @@
         <label class="input-label">Código de Verificação</label>
         <input 
           type="text" 
+          id="codigoInput"
           #codigoInput
           placeholder="Digite o código"
           maxlength="6"
@@ -106,14 +109,14 @@
 
       <button 
         type="button"
-        (click)="onVerifyCode(codigoInput.value)"
+        onclick="if(window.handleVerifyCode) { event.preventDefault(); event.stopPropagation(); window.handleVerifyCode(); }"
         class="login-button native-button">
         Verificar Código
       </button>
 
       <button 
         type="button"
-        (click)="step = 'email'"
+        onclick="if(window.handleBackToEmail) { event.preventDefault(); event.stopPropagation(); window.handleBackToEmail(); }"
         class="back-button native-button">
         Voltar
       </button>
@@ -123,7 +126,7 @@
     <div *ngIf="!isLoginMode && step === 'register'" class="form-container">
       <h2>Complete seu Cadastro</h2>
       
-      <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+      <form [formGroup]="registerForm" (ngSubmit)="onRegister()" onsubmit="event.preventDefault(); if(window.handleRegister) { window.handleRegister(); } return false;">
         <div class="input-wrapper">
           <label class="input-label">Nome</label>
           <input 
@@ -185,16 +188,17 @@
         </div>
 
         <button 
-          type="submit"
+          type="button"
           [disabled]="registerForm.invalid"
-          class="login-button native-button">
+          class="login-button native-button"
+          onclick="if(window.handleRegister) { event.preventDefault(); event.stopPropagation(); window.handleRegister(); }">
           Cadastrar
         </button>
       </form>
 
       <button 
         type="button"
-        (click)="step = 'email'"
+        onclick="if(window.handleBackToEmail) { event.preventDefault(); event.stopPropagation(); window.handleBackToEmail(); }"
         class="back-button native-button">
         Voltar
       </button>

@@ -3,13 +3,13 @@
 <ion-content [fullscreen]="true" class="ion-padding">
   
   <!-- Botão Voltar -->
-  <ion-button 
-    fill="clear" 
-    (click)="voltar()"
-    class="back-button">
+  <button 
+    type="button"
+    onclick="if(window.handleVoltarQuadra) { event.preventDefault(); event.stopPropagation(); window.handleVoltarQuadra(); }"
+    class="back-button native-button">
     <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
     Voltar
-  </ion-button>
+  </button>
 
   <!-- Informações da Quadra -->
   <div class="quadra-header" *ngIf="quadra && ginasio">
@@ -23,15 +23,15 @@
   <!-- Calendário -->
   <div class="calendario-section">
     <div class="calendario-header">
-      <ion-button fill="clear" (click)="mesAnterior()">
+      <button type="button" onclick="if(window.handleMesAnterior) { event.preventDefault(); event.stopPropagation(); window.handleMesAnterior(); }" class="native-button">
         <ion-icon name="chevron-back-outline"></ion-icon>
-      </ion-button>
+      </button>
       <h2 class="mes-ano">
         {{ currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) }}
       </h2>
-      <ion-button fill="clear" (click)="mesProximo()">
+      <button type="button" onclick="if(window.handleMesProximo) { event.preventDefault(); event.stopPropagation(); window.handleMesProximo(); }" class="native-button">
         <ion-icon name="chevron-forward-outline"></ion-icon>
-      </ion-button>
+      </button>
     </div>
 
     <div class="calendario-grid">
@@ -41,7 +41,8 @@
         [class.hoje]="isHoje(dia)"
         [class.selecionado]="isSelecionado(dia)"
         [class.desabilitado]="isDataDesabilitada(dia)"
-        (click)="!isDataDesabilitada(dia) && selecionarData(dia)">
+        [attr.data-dia-timestamp]="dia.getTime()"
+        onclick="if(window.handleSelecionarData && !this.classList.contains('desabilitado')) { event.preventDefault(); event.stopPropagation(); const timestamp = parseInt(this.getAttribute('data-dia-timestamp')); window.handleSelecionarData(timestamp); }">
         <span class="dia-numero">{{ dia.getDate() }}</span>
         <span class="dia-semana">{{ dia.toLocaleDateString('pt-BR', { weekday: 'short' }) }}</span>
       </div>
@@ -73,7 +74,8 @@
             class="horario-item"
             *ngFor="let horario of horariosLivres"
             [class.selecionado]="horariosSelecionados.includes(horario)"
-            (click)="toggleHorario(horario)">
+            [attr.data-horario]="horario"
+            onclick="if(window.handleToggleHorario) { event.preventDefault(); event.stopPropagation(); const horario = this.getAttribute('data-horario'); window.handleToggleHorario(horario); }">
             {{ horario }}
           </div>
         </div>
@@ -86,7 +88,7 @@
         Horários selecionados: {{ horariosSelecionados.join(', ') }}
       </p>
 
-      <form [formGroup]="reservaForm" (ngSubmit)="criarReserva()">
+      <form [formGroup]="reservaForm" (ngSubmit)="criarReserva()" onsubmit="event.preventDefault(); if(window.handleCriarReserva) { window.handleCriarReserva(); } return false;">
         <ion-item>
           <ion-label position="stacked">Esporte *</ion-label>
           <ion-select formControlName="id_esporte" placeholder="Selecione o esporte">
@@ -113,14 +115,14 @@
           <ion-toggle formControlName="privada"></ion-toggle>
         </ion-item>
 
-        <ion-button 
-          expand="block" 
-          type="submit"
+        <button 
+          type="button"
           [disabled]="reservaForm.invalid"
-          class="criar-reserva-button">
+          class="criar-reserva-button native-button"
+          onclick="if(window.handleCriarReserva) { event.preventDefault(); event.stopPropagation(); window.handleCriarReserva(); }">
           <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
           Criar Reserva
-        </ion-button>
+        </button>
       </form>
       </div>
     </div>

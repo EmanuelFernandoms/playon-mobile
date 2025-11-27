@@ -97,15 +97,13 @@
           <ion-icon name="search-outline" slot="start"></ion-icon>
           Buscar
         </ion-button>
-        <ion-button 
-          fill="outline" 
-          expand="block"
+        <button 
           type="button"
-          (click)="limparFiltros()"
-          class="limpar-button">
+          onclick="if(window.handleLimparFiltros) { event.preventDefault(); event.stopPropagation(); window.handleLimparFiltros(); }"
+          class="limpar-button native-button">
           <ion-icon name="close-outline" slot="start"></ion-icon>
           Limpar
-        </ion-button>
+        </button>
       </div>
     </form>
   </div>
@@ -131,7 +129,7 @@
 
     <!-- Grid de Reservas -->
     <div class="reservas-grid" *ngIf="reservas.length > 0">
-      <div class="reserva-card" *ngFor="let reserva of reservas" (click)="abrirReserva(reserva)">
+      <div class="reserva-card" *ngFor="let reserva of reservas" [attr.data-reserva-id]="reserva.id" onclick="if(window.handleAbrirReservaExplorar) { event.preventDefault(); event.stopPropagation(); const id = this.getAttribute('data-reserva-id'); window.handleAbrirReservaExplorar(id); }">
         <div class="reserva-header">
           <div class="reserva-esporte">
             <ion-icon name="football-outline"></ion-icon>

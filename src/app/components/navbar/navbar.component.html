@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar class="navbar-playon">
     <ion-title>
-      <img (click)="irParaHome()" [src]="logoPath" alt="logo playon" class="playon-logo">
+      <img onclick="if(window.handleIrParaHome) { event.preventDefault(); event.stopPropagation(); window.handleIrParaHome(); }" [src]="logoPath" alt="logo playon" class="playon-logo" style="cursor: pointer;">
     </ion-title>
   </ion-toolbar>
 </ion-header>

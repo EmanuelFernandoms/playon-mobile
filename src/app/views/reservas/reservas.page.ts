@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { IonicModule, RefresherCustomEvent } from '@ionic/angular';
@@ -23,7 +23,7 @@ import { environment } from 'src/environments/environment';
   templateUrl: './reservas.page.html',
   styleUrls: ['./reservas.page.scss'],
 })
-export class ReservasPage implements OnInit {
+export class ReservasPage implements OnInit, AfterViewInit, OnDestroy {
 
   reservas: any[] = [];
   carregando = true;
@@ -84,6 +84,21 @@ export class ReservasPage implements OnInit {
       month: '2-digit', 
       year: 'numeric' 
     });
+  }
+
+  ngAfterViewInit() {
+    // Expor função no window para eventos nativos
+    (window as any).handleAbrirReservaReservas = (id: string) => {
+      console.log('📅 handleAbrirReservaReservas chamado via onclick nativo! ID:', id);
+      const reserva = this.reservas.find(r => r.id === id);
+      if (reserva) {
+        this.abrirReserva(reserva);
+      }
+    };
+  }
+
+  ngOnDestroy() {
+    delete (window as any).handleAbrirReservaReservas;
   }
 
 }

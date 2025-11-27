@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { IonicModule, RefresherCustomEvent } from '@ionic/angular';
@@ -25,7 +25,7 @@ import { environment } from 'src/environments/environment';
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
 })
-export class HomePage implements OnInit {
+export class HomePage implements OnInit, AfterViewInit, OnDestroy {
 
   esportes: any[] = [];
   ginasios: any[] = [];
@@ -42,6 +42,30 @@ export class HomePage implements OnInit {
     
     this.carregarEsportes();
     this.carregarGinasios();
+  }
+
+  ngAfterViewInit() {
+    // Expor funções no window para eventos nativos
+    (window as any).handleAbrirGinasio = (id: string) => {
+      console.log('🏟️ handleAbrirGinasio chamado via onclick nativo! ID:', id);
+      const ginasio = this.ginasios.find(g => g.id === id);
+      if (ginasio) {
+        this.abrirGinasio(ginasio);
+      }
+    };
+    
+    (window as any).handleAbrirReserva = (id: string) => {
+      console.log('📅 handleAbrirReserva chamado via onclick nativo! ID:', id);
+      const reserva = this.esportes.find(r => r.id === id);
+      if (reserva) {
+        this.abrirReserva(reserva);
+      }
+    };
+  }
+
+  ngOnDestroy() {
+    delete (window as any).handleAbrirGinasio;
+    delete (window as any).handleAbrirReserva;
   }
 
   carregarEsportes() {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
@@ -25,7 +25,7 @@ import { environment } from 'src/environments/environment';
   templateUrl: './quadra.page.html',
   styleUrls: ['./quadra.page.scss'],
 })
-export class QuadraPage implements OnInit {
+export class QuadraPage implements OnInit, AfterViewInit, OnDestroy {
 
   quadra: any = null;
   ginasio: any = null;
@@ -371,6 +371,51 @@ export class QuadraPage implements OnInit {
       position: 'bottom'
     });
     await toast.present();
+  }
+
+  ngAfterViewInit() {
+    // Expor funções no window para eventos nativos
+    (window as any).handleVoltarQuadra = () => {
+      console.log('⬅️ handleVoltarQuadra chamado via onclick nativo!');
+      this.voltar();
+    };
+    
+    (window as any).handleMesAnterior = () => {
+      console.log('⬅️ handleMesAnterior chamado via onclick nativo!');
+      this.mesAnterior();
+    };
+    
+    (window as any).handleMesProximo = () => {
+      console.log('➡️ handleMesProximo chamado via onclick nativo!');
+      this.mesProximo();
+    };
+    
+    (window as any).handleSelecionarData = (timestamp: number) => {
+      console.log('📅 handleSelecionarData chamado via onclick nativo! Timestamp:', timestamp);
+      const data = new Date(timestamp);
+      if (!this.isDataDesabilitada(data)) {
+        this.selecionarData(data);
+      }
+    };
+    
+    (window as any).handleToggleHorario = (horario: string) => {
+      console.log('⏰ handleToggleHorario chamado via onclick nativo! Horário:', horario);
+      this.toggleHorario(horario);
+    };
+    
+    (window as any).handleCriarReserva = () => {
+      console.log('✅ handleCriarReserva chamado via onclick nativo!');
+      this.criarReserva();
+    };
+  }
+
+  ngOnDestroy() {
+    delete (window as any).handleVoltarQuadra;
+    delete (window as any).handleMesAnterior;
+    delete (window as any).handleMesProximo;
+    delete (window as any).handleSelecionarData;
+    delete (window as any).handleToggleHorario;
+    delete (window as any).handleCriarReserva;
   }
 
 }

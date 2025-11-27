@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { IonicModule, IonInput } from '@ionic/angular';
@@ -22,7 +22,7 @@ import { environment } from 'src/environments/environment';
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
 })
-export class LoginPage implements OnInit {
+export class LoginPage implements OnInit, AfterViewInit, OnDestroy {
 
   isLoginMode = true;
   loginForm: FormGroup;
@@ -81,6 +81,51 @@ export class LoginPage implements OnInit {
       console.log('LoginForm válido:', this.loginForm.valid);
       console.log('LoginForm controls:', Object.keys(this.loginForm.controls));
     }, 100);
+  }
+
+  ngAfterViewInit() {
+    // Expor funções no window para eventos nativos
+    (window as any).handleLogin = () => {
+      console.log('🔐 handleLogin chamado via onclick nativo!');
+      this.onLogin();
+    };
+    
+    (window as any).handleToggleMode = () => {
+      console.log('🔄 handleToggleMode chamado via onclick nativo!');
+      this.toggleMode();
+    };
+    
+    (window as any).handleSendEmailToken = () => {
+      console.log('📧 handleSendEmailToken chamado via onclick nativo!');
+      this.onSendEmailToken();
+    };
+    
+    (window as any).handleVerifyCode = () => {
+      console.log('✅ handleVerifyCode chamado via onclick nativo!');
+      const input = document.querySelector('#codigoInput') as HTMLInputElement;
+      if (input) {
+        this.onVerifyCode(input.value);
+      }
+    };
+    
+    (window as any).handleRegister = () => {
+      console.log('📝 handleRegister chamado via onclick nativo!');
+      this.onRegister();
+    };
+    
+    (window as any).handleBackToEmail = () => {
+      console.log('⬅️ handleBackToEmail chamado via onclick nativo!');
+      this.step = 'email';
+    };
+  }
+
+  ngOnDestroy() {
+    delete (window as any).handleLogin;
+    delete (window as any).handleToggleMode;
+    delete (window as any).handleSendEmailToken;
+    delete (window as any).handleVerifyCode;
+    delete (window as any).handleRegister;
+    delete (window as any).handleBackToEmail;
   }
 
   updateLogo() {
