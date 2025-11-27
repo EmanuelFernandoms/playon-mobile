@@ -1,0 +1,178 @@
+<app-navbar></app-navbar>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  
+  <div class="explorar-header">
+    <h1>Explorar Reservas</h1>
+    <p>Encontre reservas e atividades disponíveis</p>
+  </div>
+
+  <!-- Formulário de Filtros -->
+  <div class="filtros-section">
+    <form [formGroup]="filtrosForm" (ngSubmit)="buscarReservas()">
+      <div class="filtros-grid">
+        <!-- Busca por texto -->
+        <ion-item class="filtro-item">
+          <ion-label position="stacked">Buscar</ion-label>
+          <ion-input 
+            formControlName="search"
+            placeholder="Esporte, código ou observações">
+          </ion-input>
+        </ion-item>
+
+        <!-- Filtro por data -->
+        <ion-item class="filtro-item">
+          <ion-label position="stacked">Data</ion-label>
+          <ion-input 
+            type="date"
+            formControlName="data">
+          </ion-input>
+        </ion-item>
+
+        <!-- Filtro por status -->
+        <ion-item class="filtro-item">
+          <ion-label position="stacked">Status</ion-label>
+          <ion-select 
+            formControlName="status"
+            placeholder="Todos">
+            <ion-select-option value="">Todos</ion-select-option>
+            <ion-select-option value="confirmada">Confirmada</ion-select-option>
+            <ion-select-option value="pendente">Pendente</ion-select-option>
+            <ion-select-option value="cancelada">Cancelada</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <!-- Filtro por esporte -->
+        <ion-item class="filtro-item">
+          <ion-label position="stacked">Esporte</ion-label>
+          <ion-select 
+            formControlName="id_esporte"
+            placeholder="Todos">
+            <ion-select-option value="">Todos</ion-select-option>
+            <ion-select-option *ngFor="let esporte of esportesUnicos" [value]="esporte.id">
+              {{ esporte.nome }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <!-- Filtro por quadra -->
+        <ion-item class="filtro-item">
+          <ion-label position="stacked">Quadra</ion-label>
+          <ion-select 
+            formControlName="id_quadra"
+            placeholder="Todas">
+            <ion-select-option value="">Todas</ion-select-option>
+            <ion-select-option *ngFor="let quadra of quadrasUnicas" [value]="quadra.id">
+              {{ quadra.nome || 'Quadra ' + quadra.numero }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <!-- Filtro por cidade -->
+        <ion-item class="filtro-item">
+          <ion-label position="stacked">Cidade</ion-label>
+          <ion-input 
+            formControlName="cidade"
+            placeholder="Nome da cidade">
+          </ion-input>
+        </ion-item>
+
+        <!-- Filtro por estado -->
+        <ion-item class="filtro-item">
+          <ion-label position="stacked">Estado (UF)</ion-label>
+          <ion-input 
+            formControlName="uf"
+            placeholder="Ex: SC, SP, RJ"
+            maxlength="2"
+            style="text-transform: uppercase;">
+          </ion-input>
+        </ion-item>
+      </div>
+
+      <div class="filtros-actions">
+        <ion-button 
+          expand="block" 
+          type="submit"
+          class="buscar-button">
+          <ion-icon name="search-outline" slot="start"></ion-icon>
+          Buscar
+        </ion-button>
+        <ion-button 
+          fill="outline" 
+          expand="block"
+          type="button"
+          (click)="limparFiltros()"
+          class="limpar-button">
+          <ion-icon name="close-outline" slot="start"></ion-icon>
+          Limpar
+        </ion-button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="carregando" class="loading-container">
+    <ion-spinner></ion-spinner>
+    <p>Buscando reservas...</p>
+  </div>
+
+  <!-- Resultados -->
+  <div *ngIf="!carregando" class="resultados-section">
+    <div class="resultados-header">
+      <h2>{{ reservas.length }} {{ reservas.length === 1 ? 'reserva encontrada' : 'reservas encontradas' }}</h2>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="reservas.length === 0" class="empty-state">
+      <ion-icon name="search-outline"></ion-icon>
+      <p>Nenhuma reserva encontrada com os filtros selecionados.</p>
+      <p>Tente ajustar os filtros de busca.</p>
+    </div>
+
+    <!-- Grid de Reservas -->
+    <div class="reservas-grid" *ngIf="reservas.length > 0">
+      <div class="reserva-card" *ngFor="let reserva of reservas" (click)="abrirReserva(reserva)">
+        <div class="reserva-header">
+          <div class="reserva-esporte">
+            <ion-icon name="football-outline"></ion-icon>
+            <span>{{ reserva.nome_esporte }}</span>
+          </div>
+          <div class="reserva-status" 
+               [class.status-confirmada]="reserva.status === 'confirmada'" 
+               [class.status-pendente]="reserva.status === 'pendente'"
+               [class.status-cancelada]="reserva.status === 'cancelada'">
+            {{ reserva.status }}
+          </div>
+        </div>
+        
+        <div class="reserva-body">
+          <div class="reserva-info-item">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <span>{{ formatarData(reserva.data) }}</span>
+          </div>
+          <div class="reserva-info-item">
+            <ion-icon name="time-outline"></ion-icon>
+            <span>{{ formatarHorario(reserva.hora_inicio) }} - {{ formatarHorario(reserva.hora_fim) }}</span>
+          </div>
+          <div class="reserva-info-item" *ngIf="reserva.observacoes">
+            <ion-icon name="document-text-outline"></ion-icon>
+            <span>{{ reserva.observacoes }}</span>
+          </div>
+        </div>
+        
+        <div class="reserva-footer">
+          <div class="reserva-valor">
+            <span class="valor-label">Valor:</span>
+            <span class="valor-amount">R$ {{ reserva.valor }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</ion-content>
+
+<app-footer></app-footer>
+
+
+

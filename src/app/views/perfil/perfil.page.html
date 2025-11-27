@@ -1,0 +1,81 @@
+<app-navbar></app-navbar>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="profile-container" *ngIf="usuario">
+    
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <div class="profile-avatar">
+        <ion-icon name="person-circle" class="avatar-icon"></ion-icon>
+      </div>
+      <h1 class="profile-name">{{ usuario.nome }}</h1>
+      <p class="profile-status" [class.ativo]="usuario.status === 'ativo'">
+        <ion-icon [name]="usuario.status === 'ativo' ? 'checkmark-circle' : 'close-circle'"></ion-icon>
+        {{ usuario.status }}
+      </p>
+    </div>
+
+    <!-- Informações do Usuário -->
+    <div class="info-section">
+      <h2 class="section-title">Informações Pessoais</h2>
+      
+      <div class="info-card">
+        <div class="info-item">
+          <div class="info-icon">
+            <ion-icon name="mail-outline"></ion-icon>
+          </div>
+          <div class="info-content">
+            <span class="info-label">Email</span>
+            <span class="info-value">{{ usuario.email }}</span>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-icon">
+            <ion-icon name="call-outline"></ion-icon>
+          </div>
+          <div class="info-content">
+            <span class="info-label">Telefone</span>
+            <span class="info-value">{{ usuario.telefone }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Configurações -->
+    <div class="settings-section">
+      <h2 class="section-title">Configurações</h2>
+      
+      <div class="settings-card">
+        <div class="setting-item">
+          <div class="setting-info">
+            <ion-icon name="moon-outline" class="setting-icon"></ion-icon>
+            <div>
+              <span class="setting-label">Modo Escuro</span>
+              <span class="setting-description">Ative o tema escuro do aplicativo</span>
+            </div>
+          </div>
+          <ion-toggle 
+            [checked]="darkMode" 
+            (ionChange)="toggleDarkMode()"
+            class="dark-mode-toggle">
+          </ion-toggle>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botão Sair -->
+    <ion-button 
+      expand="block" 
+      fill="outline"
+      color="danger" 
+      (click)="logout()"
+      class="logout-button">
+      <ion-icon name="log-out-outline" slot="start"></ion-icon>
+      Sair da Conta
+    </ion-button>
+  </div>
+</ion-content>
+
+<app-footer></app-footer>
+

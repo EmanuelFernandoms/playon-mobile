@@ -1,0 +1,298 @@
+.ion-padding {
+  --background: var(--background-color, #ffffff) !important;
+  background-color: var(--background-color, #ffffff) !important;
+  padding-bottom: 80px !important;
+}
+
+ion-content {
+  --background: var(--background-color, #ffffff) !important;
+  background-color: var(--background-color, #ffffff) !important;
+}
+
+.back-button {
+  --color: var(--primary-color, #5900F8) !important;
+  --background: rgba(89, 0, 248, 0.08) !important;
+  --background-hover: rgba(89, 0, 248, 0.12) !important;
+  --background-activated: rgba(89, 0, 248, 0.16) !important;
+  --border-radius: 12px;
+  --padding-start: 12px;
+  --padding-end: 16px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+  margin: 16px 0;
+  font-weight: 600;
+  font-size: 15px;
+  text-transform: none;
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 4px rgba(89, 0, 248, 0.1);
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(89, 0, 248, 0.15);
+  }
+  
+  ion-icon {
+    color: var(--primary-color, #5900F8) !important;
+    font-size: 20px;
+    margin-right: 4px;
+  }
+}
+
+.loading-container {
+  text-align: center;
+  padding: 40px 20px;
+  
+  ion-spinner {
+    margin-bottom: 16px;
+  }
+  
+  p {
+    color: var(--text-secondary, #666666) !important;
+    font-size: 14px;
+  }
+}
+
+.reserva-detalhes {
+  .action-buttons {
+    margin: 24px 0;
+    
+    .action-button {
+      margin-bottom: 12px;
+      height: 48px;
+      font-weight: 600;
+      text-transform: none;
+      
+      &.entrar-button {
+        --background: var(--primary-color, #5900F8) !important;
+        --color: #ffffff !important;
+      }
+      
+      &.sair-button {
+        --border-color: #eb445a !important;
+        --color: #eb445a !important;
+      }
+    }
+  }
+
+  .reserva-passada-message {
+    margin: 24px 0;
+    padding: 20px;
+    background: var(--card-background, #f8f9fa) !important;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid var(--border-color, #e0e0e0) !important;
+    
+    ion-icon {
+      font-size: 48px;
+      color: var(--text-secondary, #999999) !important;
+      margin-bottom: 12px;
+    }
+    
+    p {
+      color: var(--text-secondary, #666666) !important;
+      font-size: 14px;
+      margin: 0;
+    }
+  }
+  
+  .reserva-header-detalhes {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--border-color, #f0f0f0) !important;
+    
+    .reserva-esporte-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      
+      ion-icon {
+        font-size: 32px;
+        color: var(--primary-color, #5900F8) !important;
+      }
+      
+      h1 {
+        color: var(--text-color, #000000) !important;
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0;
+      }
+    }
+    
+    .reserva-status-badge {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: capitalize;
+      
+      &.status-confirmada {
+        background: #d4edda;
+        color: #155724 !important;
+      }
+      
+      &.status-pendente {
+        background: #fff3cd;
+        color: #856404 !important;
+      }
+    }
+  }
+}
+
+.info-section {
+  margin-bottom: 32px;
+  
+  .section-title {
+    color: var(--text-color, #000000) !important;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 20px 0;
+  }
+  
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .info-item {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    background: var(--card-background, #f8f9fa) !important;
+    border-radius: 8px;
+    align-items: flex-start;
+    
+    ion-icon {
+      font-size: 24px;
+      color: var(--primary-color, #5900F8) !important;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+    
+    .info-label {
+      color: var(--text-secondary, #666666) !important;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin: 0 0 4px 0;
+      letter-spacing: 0.5px;
+    }
+    
+    .info-value {
+      color: var(--text-color, #000000) !important;
+      font-size: 16px;
+      font-weight: 500;
+      margin: 0;
+      text-transform: capitalize;
+      
+      &.pago {
+        color: #155724 !important;
+        font-weight: 600;
+      }
+    }
+    
+    .info-value-divided {
+      color: var(--text-secondary, #666666) !important;
+      font-size: 13px;
+      font-weight: 400;
+      margin: 4px 0 0 0;
+      font-style: italic;
+    }
+  }
+  
+  .info-item-full {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    background: var(--card-background, #f8f9fa);
+    border-radius: 8px;
+    align-items: flex-start;
+    
+    ion-icon {
+      font-size: 24px;
+      color: var(--primary-color, #5900F8) !important;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+    
+    .info-label {
+      color: var(--text-secondary, #666666) !important;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin: 0 0 4px 0;
+      letter-spacing: 0.5px;
+    }
+    
+    .info-value {
+      color: var(--text-color, #000000) !important;
+      font-size: 14px;
+      margin: 0;
+      line-height: 1.5;
+    }
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    
+    ion-icon {
+      font-size: 64px;
+      color: var(--text-secondary, #cccccc) !important;
+      margin-bottom: 16px;
+    }
+    
+    p {
+      color: var(--text-secondary, #888888) !important;
+      font-size: 14px;
+    }
+  }
+  
+  .jogadores-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    
+    .jogador-item {
+      display: flex;
+      gap: 12px;
+      padding: 16px;
+      background: var(--card-background, #f8f9fa);
+      border-radius: 8px;
+      align-items: center;
+      
+      ion-icon {
+        font-size: 32px;
+        color: var(--primary-color, #5900F8) !important;
+        flex-shrink: 0;
+      }
+      
+      .jogador-info {
+        flex: 1;
+        
+        .jogador-nome {
+          color: var(--text-color, #000000) !important;
+          font-size: 16px;
+          font-weight: 600;
+          margin: 0 0 4px 0;
+        }
+        
+        .jogador-email {
+          color: var(--text-secondary, #666666) !important;
+          font-size: 14px;
+          margin: 0;
+        }
+      }
+    }
+  }
+}
+

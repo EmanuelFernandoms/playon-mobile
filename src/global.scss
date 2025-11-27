@@ -34,4 +34,121 @@
 
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import '@ionic/angular/css/palettes/dark.system.css';
+/* @import '@ionic/angular/css/palettes/dark.system.css'; */
+
+/* Forçar backgrounds explícitos para evitar dark mode do navegador */
+ion-app {
+  --background: #ffffff !important;
+  background-color: #ffffff !important;
+  pointer-events: auto !important;
+  touch-action: manipulation;
+}
+
+/* Garantir que o router outlet não bloqueie interações */
+ion-router-outlet {
+  pointer-events: auto !important;
+}
+
+ion-content {
+  --background: #ffffff !important;
+  background-color: #ffffff !important;
+  pointer-events: auto !important;
+  touch-action: manipulation;
+  
+  // Garantir que o scroll-content não bloqueie eventos
+  ::ng-deep .scroll-content {
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
+    overflow-y: auto !important;
+  }
+  
+  // Remover qualquer overlay
+  ::ng-deep .fixed-content,
+  ::ng-deep .scroll-content {
+    pointer-events: auto !important;
+  }
+}
+
+/* Garantir que inputs e botões sejam clicáveis no mobile */
+ion-input,
+ion-button,
+ion-item,
+ion-select,
+ion-toggle,
+ion-textarea,
+ion-icon,
+ion-label,
+ion-tab-button,
+ion-tab-bar,
+ion-refresher,
+ion-refresher-content,
+ion-spinner {
+  pointer-events: auto !important;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Botões HTML nativos - garantem funcionamento no Android */
+button,
+input[type="button"],
+input[type="submit"] {
+  pointer-events: auto !important;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(89, 0, 248, 0.1);
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  user-select: none;
+  -webkit-user-select: none;
+  
+  &:not(:disabled) {
+    pointer-events: auto !important;
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+/* Input nativo dentro do ion-input */
+ion-input input,
+ion-input textarea {
+  pointer-events: auto !important;
+  touch-action: manipulation;
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  -webkit-tap-highlight-color: rgba(89, 0, 248, 0.1);
+  cursor: text;
+  width: 100% !important;
+  height: 100% !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Garantir que elementos interativos não sejam bloqueados */
+a,
+button,
+input,
+select,
+textarea {
+  pointer-events: auto !important;
+  touch-action: manipulation;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+ion-header {
+  --background: #5900F8 !important;
+  background-color: #5900F8 !important;
+}
+
+ion-toolbar {
+  --background: #5900F8 !important;
+  background-color: #5900F8 !important;
+}
+
