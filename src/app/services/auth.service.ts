@@ -43,12 +43,26 @@ export class AuthService {
     console.log('🌐 Fetch nativo - Options:', JSON.stringify(options, null, 2));
     
     // Prepara headers, preservando os que já existem
-    const headers: HeadersInit = {
-      ...(options.headers as HeadersInit)
-    };
+    let headers: Record<string, string> = {};
+    
+    // Converte HeadersInit para objeto simples
+    if (options.headers) {
+      if (options.headers instanceof Headers) {
+        options.headers.forEach((value, key) => {
+          headers[key] = value;
+        });
+      } else if (Array.isArray(options.headers)) {
+        options.headers.forEach(([key, value]) => {
+          headers[key] = value;
+        });
+      } else {
+        headers = { ...options.headers as Record<string, string> };
+      }
+    }
     
     // Só adiciona Content-Type se não foi especificado
-    if (!headers['Content-Type'] && !headers['content-type']) {
+    const hasContentType = headers['Content-Type'] || headers['content-type'];
+    if (!hasContentType) {
       headers['Content-Type'] = 'application/x-www-form-urlencoded';
     }
     
