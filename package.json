@@ -7,9 +7,13 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:prod": "ng build --configuration production",
+    "build:dev": "ng build --configuration development",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "serve:www": "npx http-server www -p 8000 -c-1",
+    "build:dev:serve": "npm run build:dev && npm run serve:www"
   },
   "private": true,
   "dependencies": {

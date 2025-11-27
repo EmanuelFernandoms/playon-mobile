@@ -36,28 +36,46 @@ export class HomePage implements OnInit {
   ) {}
 
   ngOnInit() {
+    console.log('🏠 HomePage ngOnInit - Componente carregado!');
+    console.log('🏠 Environment API URL:', environment.apiBaseUrl);
+    console.log('🏠 Fazendo requisições...');
+    
     this.carregarEsportes();
     this.carregarGinasios();
   }
 
   carregarEsportes() {
-    this.http.post<any[]>(`${environment.apiBaseUrl}/getBookingAll`, {})
-      .subscribe((res) => {
+    const url = `${environment.apiBaseUrl}/getBookingAll`;
+    console.log('📡 Requisição ESPORTES para:', url);
+    
+    this.http.post<any[]>(url, {}).subscribe({
+      next: (res) => {
+        console.log('✅ Esportes recebidos:', res);
         this.esportes = res;
-        console.log('Esportes:', res);
-      }, (erro) => {
-        console.error('Erro ao carregar esportes:', erro);
-      });
+      },
+      error: (erro) => {
+        console.error('❌ Erro ao carregar esportes:', erro);
+        console.error('❌ Status:', erro.status);
+        console.error('❌ URL:', erro.url);
+      }
+    });
   }
 
   carregarGinasios() {
-    this.http.post<any[]>(`${environment.apiBaseUrl}/load-gym-all`, {})
-      .subscribe((res) => {
+    const url = `${environment.apiBaseUrl}/load-gym-all`;
+    console.log('📡 Requisição GINÁSIOS para:', url);
+    
+    this.http.post<any[]>(url, {}).subscribe({
+      next: (res) => {
+        console.log('✅ Ginásios recebidos:', res);
         this.ginasios = res;
-        console.log('Ginásios:', res);
-      }, (erro) => {
-        console.error('Erro ao carregar ginásios:', erro);
-      });
+      },
+      error: (erro) => {
+        console.error('❌ Erro ao carregar ginásios:', erro);
+        console.error('❌ Status:', erro.status);
+        console.error('❌ URL:', erro.url);
+      }
+    });
   }
 
   abrirGinasio(ginasio: any) {
